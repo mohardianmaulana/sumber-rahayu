@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
 
 class userSeeder extends Seeder
 {
@@ -13,23 +13,23 @@ class userSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::updateOrCreate([
-        //     'name' => 'Gilang',
-        //     'roles_id' => 0,
-        //     'email' => 'Gilang@gmail.com',
-        //     'password' => '12345678',
-        // ]);
-        // User::updateOrCreate([
-        //     'name' => 'owner',
-        //     'roles_id' => 0,
-        //     'email' => 'owner@gmail.com',
-        //     'password' => '12345678',
-        // ]);
-        User::updateOrCreate([
-            'name' => 'Alfin',
-            'roles_id' => 0,
-            'email' => 'alfin@gmail.com',
-            'password' => '12345678',
-        ]);
+        // Misalnya, jika Anda ingin menambahkan pengguna baru
+        $newUser = User::updateOrCreate(
+            [
+                'email' => 'user@gmail.com', // Pastikan email unik
+            ],
+            [
+                'name' => 'User',
+                'password' => bcrypt('12345678'), // Ganti password sesuai kebutuhan
+                'roles_id' => 2, // ID peran yang sesuai
+            ]
+        );
+
+        // Memberikan role kepada pengguna baru berdasarkan roles_id
+        if ($newUser['roles_id'] == 1) {
+            $newUser->assignRole('admin'); // Assign role admin
+        } elseif ($newUser['roles_id'] == 2) {
+            $newUser->assignRole('owner'); // Assign role owner
+        }
     }
 }
