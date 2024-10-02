@@ -13,10 +13,15 @@ return new class extends Migration
     {
         Schema::create('pembelian', function (Blueprint $table) {
             $table->id();
+            $table-> integer('user_id');
+            $table-> integer('supplier_id');
             $table-> integer('total_item');
             $table-> integer('total_harga');
             $table-> date('tanggal_transaksi');
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('user')->onDelete('cascade');
+            $table->foreign('supplier_id')->references('id')->on('supplier')->onDelete('cascade');
         });
     }
 

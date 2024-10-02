@@ -15,6 +15,7 @@ return new class extends Migration
             $table-> id();
             $table-> String('nama');
             $table-> String('nomor');
+            $table-> integer('status');
             $table-> String('alamat');
             $table-> timeStamps();
         });

@@ -13,6 +13,7 @@ class CreateBarangPenjualan extends Migration
             $table->unsignedBigInteger('barang_id');
             $table->unsignedBigInteger('penjualan_id');
             $table->integer('jumlah');
+            $table->integer('jumlah_itemporary');
             $table->integer('harga');
             $table->timestamps();
 

@@ -13,11 +13,16 @@ return new class extends Migration
     {
         Schema::create('harga_barang', function (Blueprint $table) {
             $table->id();
+            $table-> integer('barang_id');
+            $table-> integer('supplier_id');
             $table-> integer('harga_beli');
             $table-> integer('harga_jual');
             $table-> date('tanggal_mulai');
             $table-> date('tanggal_selesai');
             $table->timestamps();
+
+            $table->foreign('barang_id')->references('id')->on('barang')->onDelete('cascade');
+            $table->foreign('supplier_id')->references('id')->on('supplier')->onDelete('cascade');
         });
     }
 
