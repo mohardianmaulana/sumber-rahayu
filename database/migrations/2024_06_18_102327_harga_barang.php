@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('harga_barang', function (Blueprint $table) {
             $table->id();
-            $table-> integer('barang_id');
-            $table-> integer('supplier_id');
+            $table-> unsignedBigInteger('barang_id');
+            $table-> unsignedBigInteger('supplier_id');
             $table-> integer('harga_beli');
             $table-> integer('harga_jual');
             $table-> date('tanggal_mulai');
