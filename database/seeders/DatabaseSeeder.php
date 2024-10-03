@@ -16,8 +16,8 @@ class DatabaseSeeder extends Seeder
         // Call your individual seeders here
         $this->call([
             // Panggil seeder lain di sini
-            userSeeder::class, // Ganti dengan seeder yang Anda buat
             RolePermissionSeeder::class,  // Misalnya, jika Anda juga memiliki seeder untuk roles
+            userSeeder::class, // Ganti dengan seeder yang Anda buat
             // Seeder lain bisa ditambahkan di sini
         ]);
     }

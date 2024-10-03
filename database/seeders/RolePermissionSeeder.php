@@ -32,12 +32,12 @@ class RolePermissionSeeder extends Seeder
 
         ////////////////////////////////////////////////////////////////////////////
 
-        $user  = User::find(1); //yg ada pada table user nomer 1
-        $user2 = User::find(2);
-        $user3 = User::find(8);
+        // $user  = User::find(1); //yg ada pada table user nomer 1
+        // $user2 = User::find(2);
+        // $user3 = User::find(8);
 
-        $user->assignRole('owner');
-        $user2->assignRole('admin');
-        $user3->assignRole('admin');
+        // $user->assignRole('owner');
+        // $user2->assignRole('admin');
+        // $user3->assignRole('admin');
     }
 }
