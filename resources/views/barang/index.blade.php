@@ -74,6 +74,7 @@
                                         @endif</td>
                                         <td class="col-md-1 text-center">Rp. {{ number_format($item->harga_jual, 0, ',', '.') }}</td>
                                         <td class="col-md-1 text-center">{{ $item->jumlah }}</td>
+                                        @if (Auth::check() && Auth::user()->hasRole('admin'))
                                         <td>
                                             <div class="text-center d-flex align-items-end">
                                                 @if ($item->jumlah > $item->minLimit && $item->jumlah < $item->maxLimit)
@@ -83,7 +84,6 @@
                                                 @elseif ($item->jumlah >= $item->maxLimit)
                                                     <i class="fas fa-exclamation-circle fa-lg" style="color: orange"></i>
                                                 @endif
-                                                @if (Auth::check() && Auth::user()->hasRole('admin'))
                                                 @php
                                                     $persetujuanForUser = \App\Models\Persetujuan::where('barang_id', $item->id)
                                                     ->where('user_id', Auth::id())
@@ -122,6 +122,7 @@
                                             </div>
                                             @endif
                                         </td>
+                                        @endif
                                     </tr>
                                 @endforeach
                             </tbody>
