@@ -12,6 +12,8 @@
     <link href="{{asset ('template/css/sb-admin-2.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="//cdn.datatables.net/2.0.2/css/dataTables.dataTables.min.css">
 
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
     <style>
         .whatsapp-icon {
             color: #6c757d; /* Warna abu-abu */

@@ -37,7 +37,7 @@ class BarangController extends Controller
                  ->on('hb_latest.max_tanggal_mulai', '=', 'harga_barang.tanggal_mulai');
         })
         ->where('barang.status', 1) // Menambahkan kondisi where untuk barang dengan status 1
-        ->whereNotNull('harga_barang.harga_jual') // Menambahkan kondisi where untuk harga_jual yang tidak null
+         // Menambahkan kondisi where untuk harga_jual yang tidak null
         ->select('barang.id', 'barang.nama', 'barang.kategori_id', 'kategori.nama_kategori as kategori_nama', DB::raw('MIN(harga_barang.harga_beli) as harga_beli'), 'harga_barang.harga_jual', 'barang.jumlah', 'barang.minLimit', 'barang.maxLimit') // Pastikan minLimit dan maxLimit disertakan
         ->groupBy('barang.id', 'barang.nama', 'barang.kategori_id', 'kategori.nama_kategori', 'harga_barang.harga_jual', 'barang.jumlah', 'barang.minLimit', 'barang.maxLimit') // Tambahkan minLimit dan maxLimit di sini juga
         ->get();
