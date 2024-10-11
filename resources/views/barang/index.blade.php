@@ -58,7 +58,9 @@
                                     <th class="col-md-1 text-center">Harga Beli</th>
                                     <th class="col-md-1 text-center">Harga Jual</th>
                                     <th class="col-md-1 text-center">Jumlah</th>
+                                    @if (Auth::check() && Auth::user()->hasRole('admin'))
                                     <th class="col-md-1 text-center">Aksi</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
