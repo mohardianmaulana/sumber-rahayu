@@ -48,12 +48,12 @@
                         <!-- TOMBOL TAMBAH DATA -->
                         <div class="pb-3" style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                @if (Auth::check() && Auth::user()->hasRole('admin'))
+                                
                                 <a href="{{ 'kategori/create' }}" class="btn btn-primary btn-sm">
                                     <i class="fas fa-plus fa-xs"></i>
                                     Tambah Kategori
                                 </a>
-                                @endif
+                                
                             </div>
                         </div>
 
