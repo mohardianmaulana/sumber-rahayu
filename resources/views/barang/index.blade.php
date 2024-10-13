@@ -69,7 +69,8 @@
                                         <td class="col-md-1 text-center">{{ $loop->iteration }}</td>
                                         <td class="col-md-1 text-center">{{ $item->nama }}</td>
                                         <td class="col-md-1 text-center">{{ $item->kategori_nama }}</td>
-                                        <td class="col-md-1 text-center">@if(isset($rataRataHargaBeli[$item->id]))
+                                        <td class="col-md-1 text-center">
+                                        @if(isset($rataRataHargaBeli[$item->id]))
                                             Rp. {{ number_format($rataRataHargaBeli[$item->id], 0, ',', '.') }}
                                         @else
                                             -
@@ -122,7 +123,7 @@
                                                     <i class="fas fa-sync-alt"></i> Arsipkan
                                                 </button>
                                             </div>
-                                            @endif
+                                            
                                         </td>
                                         @endif
                                     </tr>

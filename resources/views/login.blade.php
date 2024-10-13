@@ -39,7 +39,7 @@
                             <b>Opps!</b> {{ session('error') }}
                         </div>
                     @endif
-                    <form action="{{ route('actionlogin') }}" method="post">
+                    <form action="/actionlogin" method="post">
                         @csrf
                         <div class="form-group">
                             <label>Email</label>
