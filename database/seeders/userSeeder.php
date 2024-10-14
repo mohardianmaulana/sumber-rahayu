@@ -14,22 +14,35 @@ class userSeeder extends Seeder
     public function run(): void
     {
         // Misalnya, jika Anda ingin menambahkan pengguna baru
-        $newUser = User::updateOrCreate(
+        $user1 = User::updateOrCreate(
             [
-                'email' => 'user@gmail.com', // Pastikan email unik
+                'email' => 'admin@gmail.com', // Pastikan email unik
             ],
             [
-                'name' => 'User',
+                'name' => 'Ardi',
+                'password' => bcrypt('12345678'), // Ganti password sesuai kebutuhan
+                'roles_id' => 1, // ID peran yang sesuai
+            ]
+        );
+
+        $user2 = User::updateOrCreate(
+            [
+                'email' => 'owner@gmail.com', // Pastikan email unik
+            ],
+            [
+                'name' => 'Deny Ardianto',
                 'password' => bcrypt('12345678'), // Ganti password sesuai kebutuhan
                 'roles_id' => 2, // ID peran yang sesuai
             ]
         );
 
-        // Memberikan role kepada pengguna baru berdasarkan roles_id
-        if ($newUser['roles_id'] == 1) {
-            $newUser->assignRole('admin'); // Assign role admin
-        } elseif ($newUser['roles_id'] == 2) {
-            $newUser->assignRole('owner'); // Assign role owner
+        // Memberikan role sesuai dengan roles_id
+        if ($user1->roles_id == 1) {
+            $user1->assignRole('admin'); // Assign role admin jika roles_id == 1
+        }
+
+        if ($user2->roles_id == 2) {
+            $user2->assignRole('owner'); // Assign role owner jika roles_id == 2
         }
     }
 }
