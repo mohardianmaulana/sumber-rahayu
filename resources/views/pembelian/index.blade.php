@@ -52,7 +52,7 @@
                                 <i class="fas fa-plus fa-xs"></i>
                                 Tambah Pembelian
                             </a>
-                            <a href="{{ url('pembelianBarang/create') }}" class="btn btn-success btn-sm">
+                            <a href="{{ url('scan') }}" class="btn btn-success btn-sm">
                                 <i class="fas fa-plus fa-xs"></i>
                                 Pembelian Barang Baru
                             </a>

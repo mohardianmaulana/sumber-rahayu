@@ -279,3 +279,4 @@
 @include('sweetalert::alert')
 
 </html>
+

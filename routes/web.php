@@ -76,6 +76,10 @@ Route::middleware('auth', 'verified')->group(function () {
     //***************************************************/ PEMBELIAN /*****************************************//
     Route::get('/pembelian', [PembelianController::class, 'index'])->name('pembelian')->middleware('can:view');
     Route::get('/pembelian/lama', [PembelianController::class, 'oldPurchases'])->name('pembelian.lama')->middleware('can:view');
+    // Routing untuk halaman scan dan create_barang
+    Route::get('/scan', [PembelianBarangBaruController::class, 'scanPage'])->name('scan');
+    Route::post('/process_scan', [PembelianBarangBaruController::class, 'processScan'])->name('process_scan');
+    Route::get('/create_barang', [PembelianBarangBaruController::class, 'create'])->name('create_barang');
     Route::get('/pembelian/create', [PembelianController::class, 'create'])->name('create')->middleware('can:crud');
     Route::post('/pembelian', [PembelianController::class, 'store'])->name('store')->middleware('can:crud');
     Route::get('/pembelian/{Pembelian}/edit', [PembelianController::class, 'edit'])->name('edit')->middleware('can:crud');

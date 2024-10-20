@@ -15,6 +15,22 @@ use Illuminate\Support\Facades\Validator;
 
 class PembelianBarangBaruController extends Controller
 {
+    public function scanPage()
+    {
+        return view('scan');
+    }
+
+    // Memproses hasil scan
+    public function processScan(Request $request)
+    {
+        // Validasi data dari hasil scan QR Code
+        $validatedData = $request->validate([
+            'qr_result' => 'required', // Atur field sesuai kebutuhan
+        ]);
+
+        // Jika valid, redirect ke halaman create_barang
+        return redirect()->route('create_barang');
+    }
     public function create() 
     {
         $supplier = Supplier::where('status', 1)->get();

@@ -21,46 +21,19 @@ use Illuminate\Support\Facades\Auth;
 class BarangController extends Controller
 {
     public function index(Request $request)
-{
-    // Membuat subquery untuk mendapatkan harga terbaru dari tabel harga_barang
-    $subquery = DB::table('harga_barang')
-        ->select('barang_id', DB::raw('MAX(tanggal_mulai) as max_tanggal_mulai'))
-        ->groupBy('barang_id');
+    {
+        // Memanggil method di model Barang untuk mendapatkan data barang
+        $barang = Barang::getAllBarangWithKategoriAndHarga();
+        
+        // Memanggil method untuk mendapatkan rata-rata harga beli
+        $rataRataHargaBeli = Barang::getAverageHargaBeli();
 
-    // Membuat query join antara tabel 'barang', 'kategori', dan 'harga_barang' menggunakan subquery
-    $barang = Barang::join('kategori', 'barang.kategori_id', '=', 'kategori.id')
-        ->joinSub($subquery, 'hb_latest', function($join) {
-            $join->on('barang.id', '=', 'hb_latest.barang_id');
-        })
-        ->join('harga_barang', function($join) {
-            $join->on('hb_latest.barang_id', '=', 'harga_barang.barang_id')
-                 ->on('hb_latest.max_tanggal_mulai', '=', 'harga_barang.tanggal_mulai');
-        })
-        ->where('barang.status', 1) // Menambahkan kondisi where untuk barang dengan status 1
-         // Menambahkan kondisi where untuk harga_jual yang tidak null
-        ->select('barang.id', 'barang.nama', 'barang.kategori_id', 'kategori.nama_kategori as kategori_nama', DB::raw('MIN(harga_barang.harga_beli) as harga_beli'), 'harga_barang.harga_jual', 'barang.jumlah', 'barang.minLimit', 'barang.maxLimit') // Pastikan minLimit dan maxLimit disertakan
-        ->groupBy('barang.id', 'barang.nama', 'barang.kategori_id', 'kategori.nama_kategori', 'harga_barang.harga_jual', 'barang.jumlah', 'barang.minLimit', 'barang.maxLimit') // Tambahkan minLimit dan maxLimit di sini juga
-        ->get();
+        // Mengambil semua data kategori dari tabel kategori
+        $kategori = Kategori::all();
 
-    // Menghitung rata-rata harga_beli untuk setiap barang_id dengan tanggal_selesai null
-    $avgHargaBeli = DB::table('harga_barang')
-        ->select('barang_id', DB::raw('ROUND(AVG(harga_beli)) as rata_rata_harga_beli'))
-        ->whereNull('tanggal_selesai')
-        ->groupBy('barang_id')
-        ->get();
-
-    // Menyimpan hasil rata-rata ke dalam array
-    $rataRataHargaBeli = [];
-    foreach ($avgHargaBeli as $avg) {
-        $rataRataHargaBeli[$avg->barang_id] = $avg->rata_rata_harga_beli;
+        // Mengembalikan view dengan data yang dibutuhkan
+        return view('barang.index', compact('barang', 'kategori', 'rataRataHargaBeli'));
     }
-
-    // Mengambil semua data kategori dari tabel 'kategori'
-    $kategori = Kategori::all();
-
-    // Mengembalikan view 'barang.index' dengan data barang yang sudah digabungkan dengan kategori dan rata-rata harga_beli
-    return view('barang.index', compact('barang', 'kategori', 'rataRataHargaBeli'));
-}
 
 
 public function arsip(Request $request)
@@ -375,7 +348,5 @@ public function edit($id)
             return response()->json(['success' => false, 'message' => 'Data persetujuan tidak ditemukan.'], 404);
         }
     }
-    
-    
     
 }
