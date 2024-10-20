@@ -38,6 +38,18 @@
                                 <div>Tanggal Transaksi : <span id="tanggalTransaksi"></span></div>
                             </div>
                             <div class="mb-3 row">
+                                <label for="id_qr" class="col-sm-2 col-form-label">Id Qr</label>
+                                <div class="col-sm-10">
+                                    <!-- Menambahkan atribut readonly untuk membuat input tidak bisa diedit -->
+                                    <input type="text" class="form-control" name="id_qr" value="{{ old('id_qr', $id_qr) }}" id="id_qr" readonly>
+                                    @if (count($errors) > 0)
+                                        <div style="width:auto; color:#dc4c64; margin-top:0.25rem;">
+                                            {{ $errors->first('id_qr') }}
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
                                 <label for="nama" class="col-sm-2 col-form-label">Nama Barang</label>
                                 <div class="col-sm-10">
                                     <input type="text" class="form-control" name="nama" value="{{ old('nama') }}" id="nama">

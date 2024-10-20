@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('barang', function (Blueprint $table) {
             $table->id();
+            // Kolom 'id_qr' tipe varchar (unique) dan nullable
+            $table->string('id_qr', 255)->unique()->nullable();
             $table-> String('status');
             $table-> unsignedBigInteger('kategori_id');
             $table-> String('nama');

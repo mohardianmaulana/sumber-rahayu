@@ -18,7 +18,7 @@ return new class extends Migration
             $table-> integer('harga_beli');
             $table-> integer('harga_jual');
             $table-> date('tanggal_mulai');
-            $table-> date('tanggal_selesai');
+            $table-> date('tanggal_selesai')->nullable();
             $table->timestamps();
 
             $table->foreign('barang_id')->references('id')->on('barang')->onDelete('cascade');

@@ -71,18 +71,45 @@
         });
 
         function scanQRCode() {
-            canvas.width = video.videoWidth; // Set width
-            canvas.height = video.videoHeight; // Set height
-            context.drawImage(video, 0, 0, canvas.width, canvas.height); // Menggambar video ke canvas
-            const imageData = context.getImageData(0, 0, canvas.width, canvas.height); // Mendapatkan data gambar
-            const code = jsQR(imageData.data, canvas.width, canvas.height); // Menggunakan jsQR untuk mendeteksi QR Code
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(imageData.data, canvas.width, canvas.height);
 
-            if (code) {
-                resultDiv.innerText = `QR Code detected: ${code.data}`; // Menampilkan hasil
+    if (code) {
+        resultDiv.innerText = `QR Code detected: ${code.data}`;
+
+        // Mengirim hasil scan ke server menggunakan AJAX untuk pengecekan
+        fetch('/cek-qr', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}' // Laravel CSRF Token
+            },
+            body: JSON.stringify({
+                id_qr: code.data // Kirimkan hasil scan QR ke server
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.exists) {
+                resultDiv.innerText = 'QR Code sudah ada di database!';
             } else {
-                requestAnimationFrame(scanQRCode); // Memanggil ulang fungsi scanQRCode
+                resultDiv.innerText = 'QR Code baru, melanjutkan ke halaman tambah barang...';
+                // Redirect ke halaman tambah barang
+                window.location.href = '{{ route("create_barang") }}?id_qr=' + encodeURIComponent(code.data);
             }
-        }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            resultDiv.innerText = 'Terjadi kesalahan saat memproses data.';
+        });
+    } else {
+        requestAnimationFrame(scanQRCode); // Jika belum ada kode, terus scan
+    }
+}
+
     </script>
 </body>
 

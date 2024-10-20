@@ -21,22 +21,38 @@ class PembelianBarangBaruController extends Controller
     }
 
     // Memproses hasil scan
-    public function processScan(Request $request)
+    public function cekQrCode(Request $request)
     {
-        // Validasi data dari hasil scan QR Code
-        $validatedData = $request->validate([
-            'qr_result' => 'required', // Atur field sesuai kebutuhan
+        // Validasi input
+        $request->validate([
+            'id_qr' => 'required',
         ]);
 
-        // Jika valid, redirect ke halaman create_barang
-        return redirect()->route('create_barang');
+        // Cek apakah QR code sudah ada di database
+        $exists = Barang::where('id_qr', $request->id_qr)->exists();
+
+        // Jika sudah ada, kirim response bahwa data sudah ada
+        if ($exists) {
+            return response()->json(['exists' => true]);
+        } else {
+            // Jika tidak ada, kirim response bahwa data belum ada
+            return response()->json(['exists' => false]);
+        }
     }
-    public function create() 
-    {
-        $supplier = Supplier::where('status', 1)->get();
-        $kategori = Kategori::where('status', 1)->get();
-        return view('pembelian.create_barang', compact('kategori', 'supplier'));
-    }
+
+    public function create(Request $request)
+{
+    // Mengambil nilai id_qr dari request jika ada
+    $id_qr = $request->input('id_qr');
+
+    // Mengambil data supplier dan kategori dari database
+    $supplier = Supplier::where('status', 1)->get();
+    $kategori = Kategori::where('status', 1)->get();
+
+    // Mengirimkan id_qr ke view jika ada
+    return view('pembelian.create_barang', compact('kategori', 'supplier', 'id_qr'));
+}
+
 
     public function store(Request $request) 
 {
@@ -82,9 +98,11 @@ class PembelianBarangBaruController extends Controller
 
     // Simpan ke tabel barang
     $barang = Barang::create([
+        'id_qr' => $request->id_qr,
         'nama' => $request->nama,
         'jumlah' => $request->jumlah,  // Jangan menambahkan jumlah di sini, biarkan sebagai jumlah input
         'harga_jual' => $request->harga_jual,
+        'harga_beli' => $request->harga_beli,
         'minLimit' => $request->minLimit,
         'maxLimit' => $request->maxLimit,
         'kategori_id' => $request->kategori_id,

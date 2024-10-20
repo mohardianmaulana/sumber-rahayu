@@ -78,7 +78,7 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::get('/pembelian/lama', [PembelianController::class, 'oldPurchases'])->name('pembelian.lama')->middleware('can:view');
     // Routing untuk halaman scan dan create_barang
     Route::get('/scan', [PembelianBarangBaruController::class, 'scanPage'])->name('scan');
-    Route::post('/process_scan', [PembelianBarangBaruController::class, 'processScan'])->name('process_scan');
+    Route::post('/cek-qr', [PembelianBarangBaruController::class, 'cekQrCode']);
     Route::get('/create_barang', [PembelianBarangBaruController::class, 'create'])->name('create_barang');
     Route::get('/pembelian/create', [PembelianController::class, 'create'])->name('create')->middleware('can:crud');
     Route::post('/pembelian', [PembelianController::class, 'store'])->name('store')->middleware('can:crud');
