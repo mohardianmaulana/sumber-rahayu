@@ -38,85 +38,82 @@ class BarangController extends Controller
 
 public function arsip(Request $request)
     {
-    // Membuat subquery untuk mendapatkan harga terbaru dari tabel harga_barang
-    $subquery = DB::table('harga_barang')
-        ->select('barang_id', DB::raw('MAX(tanggal_mulai) as max_tanggal_mulai'))
-        ->groupBy('barang_id');
+        // Memanggil method di model Barang untuk mendapatkan data barang
+        $barang = Barang::arsip();
 
-    // Membuat query join antara tabel 'barang', 'kategori', dan 'harga_barang' menggunakan subquery
-    $barang = Barang::join('kategori', 'barang.kategori_id', '=', 'kategori.id')
-        ->joinSub($subquery, 'hb_latest', function($join) {
-            $join->on('barang.id', '=', 'hb_latest.barang_id');
-        })
-        ->join('harga_barang', function($join) {
-            $join->on('hb_latest.barang_id', '=', 'harga_barang.barang_id')
-                 ->on('hb_latest.max_tanggal_mulai', '=', 'harga_barang.tanggal_mulai');
-        })
-        ->where('barang.status', 0) // Menambahkan kondisi where untuk barang dengan status 1
-        ->whereNotNull('harga_barang.harga_jual') // Menambahkan kondisi where untuk harga_jual yang tidak null
-        ->select('barang.id', 'barang.nama', 'barang.kategori_id', 'kategori.nama_kategori as kategori_nama', DB::raw('MIN(harga_barang.harga_beli) as harga_beli'), 'harga_barang.harga_jual', 'barang.jumlah', 'barang.minLimit', 'barang.maxLimit') // Pastikan minLimit dan maxLimit disertakan
-        ->groupBy('barang.id', 'barang.nama', 'barang.kategori_id', 'kategori.nama_kategori', 'harga_barang.harga_jual', 'barang.jumlah', 'barang.minLimit', 'barang.maxLimit') // Tambahkan minLimit dan maxLimit di sini juga
-        ->get();
-
-    // Menghitung rata-rata harga_beli untuk setiap barang_id dengan tanggal_selesai null
-    $avgHargaBeli = DB::table('harga_barang')
-        ->select('barang_id', DB::raw('ROUND(AVG(harga_beli)) as rata_rata_harga_beli'))
-        ->whereNull('tanggal_selesai')
-        ->groupBy('barang_id')
-        ->get();
-
-    // Menyimpan hasil rata-rata ke dalam array
-    $rataRataHargaBeli = [];
-    foreach ($avgHargaBeli as $avg) {
-        $rataRataHargaBeli[$avg->barang_id] = $avg->rata_rata_harga_beli;
-    }
-
-    // Mengambil semua data kategori dari tabel 'kategori'
-    $kategori = Kategori::all();
+        // Memanggil method untuk mendapatkan rata-rata harga beli
+        $rataRataHargaBeli = Barang::getAverageHargaBeli();
         
+        // Mengambil semua data kategori dari tabel 'kategori'
+        $kategori = Kategori::all();
         return view('barang.indexArsip', compact('barang', 'rataRataHargaBeli', 'kategori'));
     }
 
     public function pulihkan($id)
     {
-        $barang = Barang::find($id);
-        if ($barang) {
-            $barang->status = 1;
-            $barang->save();
-        }
+        $barang = Barang::pulihkan($id);
 
         return redirect()->route('barang.lama')->with('success', 'Barang berhasil dipulihkan.');
     }
 
     public function arsipkan($id)
     {
-        $barang = Barang::find($id);
-        if ($barang) {
-            $barang->status = 0;
-            $barang->save();
-        }
-
+        $barang = Barang::arsipkan($id);
+        
         return redirect()->route('admin')->with('success', 'Barang berhasil diarsipkan.');
     }
 
-
-
-    public function create()
+    public function scanPage()
     {
-        $kategori = Kategori::all();
-        return view('barang.create',compact('kategori'));
+        return view('scan');
     }
 
-    public function store(Request $request)
+    // Memproses hasil scan
+    public function cekQrCode(Request $request)
+    {
+        // Validasi input
+        $request->validate([
+            'id_qr' => 'required',
+        ]);
+
+        // Cek apakah QR code sudah ada di database
+        $exists = Barang::where('id_qr', $request->id_qr)->exists();
+
+        // Jika sudah ada, kirim response bahwa data sudah ada
+        if ($exists) {
+            return response()->json(['exists' => true]);
+        } else {
+            // Jika tidak ada, kirim response bahwa data belum ada
+            return response()->json(['exists' => false]);
+        }
+    }
+
+    public function create(Request $request)
+{
+    // Mengambil nilai id_qr dari request jika ada
+    $id_qr = $request->input('id_qr');
+
+    // Mengambil data supplier dan kategori dari database
+    $supplier = Supplier::where('status', 1)->get();
+    $kategori = Kategori::where('status', 1)->get();
+
+    // Mengirimkan id_qr ke view jika ada
+    return view('pembelian.create_barang', compact('kategori', 'supplier', 'id_qr'));
+}
+
+
+    public function store(Request $request) 
 {
     $validator = Validator::make($request->all(), [
         'nama' => 'required',
         'jumlah' => 'required|numeric|min:0',
+        'harga_beli' => 'required|numeric|min:1',
         'harga_jual' => 'required|numeric|min:1',
-        'minLimit' => 'required|numeric',
+        'minLimit' => 'required|numeric|min:1',
         'maxLimit' => [
-            'required',
+            'required', 
             'numeric',
+            'min:1',
             function ($attribute, $value, $fail) use ($request) {
                 if ($value < $request->minLimit) {
                     $fail('Max Limit tidak boleh lebih kecil daripada Min Limit');
@@ -124,35 +121,155 @@ public function arsip(Request $request)
             }
         ],
         'kategori_id' => 'required',
+        'supplier_id' => 'required'
     ], [
         'nama.required' => 'Nama Barang wajib diisi',
         'jumlah.required' => 'Jumlah wajib diisi',
-        'jumlah.min'=>'Jumlah tidak boleh kurang dari 0',
-        'harga_jual'=> 'Harga jual wajib diisi',
+        'jumlah.min' => 'Jumlah tidak boleh kurang dari 0',
+        'harga_beli.required' => 'Harga beli wajib diisi',
+        'harga_beli.min' => 'Harga beli tidak boleh kurang dari 0',
+        'harga_jual.required' => 'Harga jual wajib diisi',
+        'harga_jual.min' => 'Harga jual tidak boleh kurang dari 0',
         'minLimit.required' => 'Min Limit wajib diisi',
+        'minLimit.min' => 'Min Limit tidak boleh kurang dari 0',
         'maxLimit.required' => 'Max Limit wajib diisi',
+        'maxLimit.min' => 'Max Limit tidak boleh kurang dari 0',
         'kategori_id.required' => 'Kategori wajib diisi',
+        'supplier_id.required' => 'Supplier wajib diisi',
     ]);
 
     if ($validator->fails()) {
         return redirect()->back()
-                         ->withErrors($validator)
-                         ->withInput();
+                        ->withErrors($validator)
+                        ->withInput();
     }
 
-    $barang = [
+    // Simpan ke tabel barang
+    $barang = Barang::create([
+        'id_qr' => $request->id_qr,
         'nama' => $request->nama,
-        'jumlah' => $request->jumlah,
+        'jumlah' => $request->jumlah,  // Jangan menambahkan jumlah di sini, biarkan sebagai jumlah input
         'harga_jual' => $request->harga_jual,
+        'harga_beli' => $request->harga_beli,
         'minLimit' => $request->minLimit,
         'maxLimit' => $request->maxLimit,
         'kategori_id' => $request->kategori_id,
-    ];
+        'status' => 1,
+    ]);
 
-    Barang::create($barang);
+    // Hitung total harga
+    $harga_beli = $request->harga_beli;
+    $jumlah = $request->jumlah;
+    $totalHarga = $harga_beli * $jumlah;
 
-    return redirect()->to('barang')->with('success', 'Produk berhasil ditambahkan');
+    // Simpan ke tabel pembelian
+    $pembelian = Pembelian::create([
+        'supplier_id' => $request->supplier_id,
+        'total_item' => $jumlah,
+        'total_harga' => $totalHarga,
+        'tanggal_transaksi' => now(),
+        'user_id' => Auth::id(),
+    ]);
+
+    // Simpan ke tabel pivot barang_pembelian
+    $pembelian->barangs()->attach($barang->id, [
+        'jumlah' => $jumlah, 
+        'harga' => $harga_beli, 
+        'jumlah_itemporary' => $jumlah, 
+    ]);
+
+    // Perbarui stok barang
+    $barang->jumlah = $jumlah;  // Menggunakan jumlah input asli
+    $barang->save();
+
+    // Periksa dan perbarui harga_barang
+    $hargaBarang = HargaBarang::where('barang_id', $barang->id)
+        ->where('supplier_id', $request->supplier_id)
+        ->whereNull('tanggal_selesai')
+        ->first();
+
+    if ($hargaBarang) {
+        if ($hargaBarang->harga_beli != $harga_beli) {
+            $hargaBarang->tanggal_selesai = now();
+            $hargaBarang->save();
+
+            // Buat baris baru dengan harga dan supplier baru
+            HargaBarang::create([
+                'barang_id' => $barang->id,
+                'harga_beli' => $harga_beli,
+                'harga_jual' => $request->harga_jual,
+                'supplier_id' => $request->supplier_id,
+                'tanggal_mulai' => now(),
+                'tanggal_selesai' => null,
+            ]);
+        }
+    } else {
+        HargaBarang::create([
+            'barang_id' => $barang->id,
+            'harga_beli' => $harga_beli,
+            'harga_jual' => $request->harga_jual,
+            'supplier_id' => $request->supplier_id,
+            'tanggal_mulai' => now(),
+            'tanggal_selesai' => null,
+        ]);
+    }
+
+    return redirect()->to('pembelian')->with('success', 'Produk berhasil ditambahkan');
 }
+
+
+//     public function create()
+//     {
+//         $kategori = Kategori::all();
+//         return view('barang.create',compact('kategori'));
+//     }
+
+//     public function store(Request $request)
+// {
+//     $validator = Validator::make($request->all(), [
+//         'nama' => 'required',
+//         'jumlah' => 'required|numeric|min:0',
+//         'harga_jual' => 'required|numeric|min:1',
+//         'minLimit' => 'required|numeric',
+//         'maxLimit' => [
+//             'required',
+//             'numeric',
+//             function ($attribute, $value, $fail) use ($request) {
+//                 if ($value < $request->minLimit) {
+//                     $fail('Max Limit tidak boleh lebih kecil daripada Min Limit');
+//                 }
+//             }
+//         ],
+//         'kategori_id' => 'required',
+//     ], [
+//         'nama.required' => 'Nama Barang wajib diisi',
+//         'jumlah.required' => 'Jumlah wajib diisi',
+//         'jumlah.min'=>'Jumlah tidak boleh kurang dari 0',
+//         'harga_jual'=> 'Harga jual wajib diisi',
+//         'minLimit.required' => 'Min Limit wajib diisi',
+//         'maxLimit.required' => 'Max Limit wajib diisi',
+//         'kategori_id.required' => 'Kategori wajib diisi',
+//     ]);
+
+//     if ($validator->fails()) {
+//         return redirect()->back()
+//                          ->withErrors($validator)
+//                          ->withInput();
+//     }
+
+//     $barang = [
+//         'nama' => $request->nama,
+//         'jumlah' => $request->jumlah,
+//         'harga_jual' => $request->harga_jual,
+//         'minLimit' => $request->minLimit,
+//         'maxLimit' => $request->maxLimit,
+//         'kategori_id' => $request->kategori_id,
+//     ];
+
+//     Barang::create($barang);
+
+//     return redirect()->to('barang')->with('success', 'Produk berhasil ditambahkan');
+// }
 
 public function checkEdit($id)
 {
@@ -268,11 +385,11 @@ public function edit($id)
        return redirect()->to('barang')->with('success', 'Berhasil melakukan update data produk!');
     }
 
-    public function destroy($id)
-    {
-        Barang::where('id', $id)->delete();
-        return redirect()->to('barang')->with('success', 'Berhasil menghapus data produk');
-    }
+//     public function destroy($id)
+//     {
+//         Barang::where('id', $id)->delete();
+//         return redirect()->to('barang')->with('success', 'Berhasil menghapus data produk');
+//     }
 
 //     public function barang(Request $request)
 // {
@@ -299,33 +416,33 @@ public function edit($id)
 //     return view('barang.barang', ['data' => $data, 'kategori' => $kategori]);
 // }
 
-    public function exportExcel()
-    {
-        $tanggalDatabase = Penanggalan::orderBy('tanggal', 'asc')->first();
+    // public function exportExcel()
+    // {
+    //     $tanggalDatabase = Penanggalan::orderBy('tanggal', 'asc')->first();
 
-        $tanggalDatabase = $tanggalDatabase->tanggal;
-        $tanggalSekarang = Carbon::now()->format('Y-m-d');
-        if ($tanggalSekarang != $tanggalDatabase) {
-            $fileName = 'toko' . Carbon::now()->format('Y_m_d_His') . '.xlsx';
+    //     $tanggalDatabase = $tanggalDatabase->tanggal;
+    //     $tanggalSekarang = Carbon::now()->format('Y-m-d');
+    //     if ($tanggalSekarang != $tanggalDatabase) {
+    //         $fileName = 'toko' . Carbon::now()->format('Y_m_d_His') . '.xlsx';
 
-            // Ekspor dan simpan file ke folder spesifik
-            Excel::store(new TokoExport, $fileName, 'local');
+    //         // Ekspor dan simpan file ke folder spesifik
+    //         Excel::store(new TokoExport, $fileName, 'local');
 
-            // Salin file ke folder tujuan
-            copy(storage_path('app/' . $fileName), 'C:/Users/user/Backup_Rahayu/' . $fileName);
-            // 1. Hapus semua data dari tabel 'tanggalan'
-            DB::table('penanggalan')->delete();
+    //         // Salin file ke folder tujuan
+    //         copy(storage_path('app/' . $fileName), 'C:/Users/user/Backup_Rahayu/' . $fileName);
+    //         // 1. Hapus semua data dari tabel 'tanggalan'
+    //         DB::table('penanggalan')->delete();
 
-            // 2. Tambahkan tanggal saat ini ke dalam tabel 'tanggalan'
-            DB::table('penanggalan')->insert([
-                'tanggal' => $tanggalSekarang,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+    //         // 2. Tambahkan tanggal saat ini ke dalam tabel 'tanggalan'
+    //         DB::table('penanggalan')->insert([
+    //             'tanggal' => $tanggalSekarang,
+    //             'created_at' => now(),
+    //             'updated_at' => now(),
+    //         ]);
 
-        }
-        return redirect('dashboard');
-    }
+    //     }
+    //     return redirect('dashboard');
+    // }
     public function generateCode($id)
     {
         // Generate 6 digit random code

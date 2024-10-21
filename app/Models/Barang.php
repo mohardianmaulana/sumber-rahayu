@@ -92,4 +92,51 @@ class Barang extends Model
 
         return $rataRataHargaBeli;
     }
+
+    public static function arsip()
+    {
+        // Membuat subquery untuk mendapatkan harga terbaru dari tabel harga_barang
+        $subquery = DB::table('harga_barang')
+        ->select('barang_id', DB::raw('MAX(tanggal_mulai) as max_tanggal_mulai'))
+        ->groupBy('barang_id');
+
+        // Membuat query join antara tabel 'barang', 'kategori', dan 'harga_barang' menggunakan subquery
+        $barang = Barang::join('kategori', 'barang.kategori_id', '=', 'kategori.id')
+        ->joinSub($subquery, 'hb_latest', function($join) {
+            $join->on('barang.id', '=', 'hb_latest.barang_id');
+        })
+        ->join('harga_barang', function($join) {
+            $join->on('hb_latest.barang_id', '=', 'harga_barang.barang_id')
+                ->on('hb_latest.max_tanggal_mulai', '=', 'harga_barang.tanggal_mulai');
+        })
+        ->where('barang.status', 0) // Menambahkan kondisi where untuk barang dengan status 1
+        ->whereNotNull('harga_barang.harga_jual') // Menambahkan kondisi where untuk harga_jual yang tidak null
+        ->select('barang.id', 'barang.nama', 'barang.kategori_id', 'kategori.nama_kategori as kategori_nama', DB::raw('MIN(harga_barang.harga_beli) as harga_beli'), 'harga_barang.harga_jual', 'barang.jumlah', 'barang.minLimit', 'barang.maxLimit') // Pastikan minLimit dan maxLimit disertakan
+        ->groupBy('barang.id', 'barang.nama', 'barang.kategori_id', 'kategori.nama_kategori', 'harga_barang.harga_jual', 'barang.jumlah', 'barang.minLimit', 'barang.maxLimit') // Tambahkan minLimit dan maxLimit di sini juga
+        ->get();
+
+        return $barang;
+    }
+
+    public static function pulihkan($id)
+    {
+        $barang = Barang::find($id);
+        if ($barang) {
+            $barang->status = 1;
+            $barang->save();
+        }
+        return $barang;
+    }
+
+    public static function arsipkan($id)
+    {
+        $barang = Barang::find($id);
+        if ($barang) {
+            $barang->status = 0;
+            $barang->save();
+        }
+        return $barang;
+    }
+
+
 }
