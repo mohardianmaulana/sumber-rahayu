@@ -30,6 +30,9 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::get('/barang/arsip', [BarangController::class, 'arsip'])->name('barang.lama')->middleware('can:view');
     Route::post('/barang/pulihkan/{id}', [BarangController::class, 'pulihkan'])->name('barang.pulihkan')->middleware('can:crud');
     Route::post('/barang/arsipkan/{id}', [BarangController::class, 'arsipkan'])->name('barang.arsipkan')->middleware('can:crud');
+    Route::get('/scan', [BarangController::class, 'scanPage'])->name('scan');
+    Route::post('/cek-qr', [BarangController::class, 'cekQrCode']);
+    Route::get('/create_barang', [BarangController::class, 'create'])->name('create_barang');
     Route::get('/barang/{Barang}/edit', [BarangController::class, 'edit'])->name("barang.edit")->middleware('can:crud');
     Route::get('/barang/{Barang}/checkEdit', [BarangController::class, 'checkEdit'])->name("barang.checkEdit");
     Route::post('/barang/{Barang}', [BarangController::class, 'update']) ->name("barang.update")->middleware('can:crud');
@@ -76,10 +79,6 @@ Route::middleware('auth', 'verified')->group(function () {
     //***************************************************/ PEMBELIAN /*****************************************//
     Route::get('/pembelian', [PembelianController::class, 'index'])->name('pembelian')->middleware('can:view');
     Route::get('/pembelian/lama', [PembelianController::class, 'oldPurchases'])->name('pembelian.lama')->middleware('can:view');
-    // Routing untuk halaman scan dan create_barang
-    Route::get('/scan', [PembelianBarangBaruController::class, 'scanPage'])->name('scan');
-    Route::post('/cek-qr', [PembelianBarangBaruController::class, 'cekQrCode']);
-    Route::get('/create_barang', [PembelianBarangBaruController::class, 'create'])->name('create_barang');
     Route::get('/pembelian/create', [PembelianController::class, 'create'])->name('create')->middleware('can:crud');
     Route::post('/pembelian', [PembelianController::class, 'store'])->name('store')->middleware('can:crud');
     Route::get('/pembelian/{Pembelian}/edit', [PembelianController::class, 'edit'])->name('edit')->middleware('can:crud');

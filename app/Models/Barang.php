@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class Barang extends Model
 {
@@ -138,5 +139,84 @@ class Barang extends Model
         return $barang;
     }
 
+    
 
+    public static function ubah($id)
+    {
+        // Subquery untuk mendapatkan harga terbaru dari tabel harga_barang
+        $subquery = DB::table('harga_barang')
+            ->select('barang_id', DB::raw('MAX(tanggal_mulai) as max_tanggal_mulai'))
+            ->groupBy('barang_id');
+
+        // Query untuk join tabel barang, kategori, dan harga_barang menggunakan subquery
+        $barang = self::join('kategori', 'barang.kategori_id', '=', 'kategori.id')
+            ->joinSub($subquery, 'hb_latest', function($join) {
+                $join->on('barang.id', '=', 'hb_latest.barang_id');
+            })
+            ->join('harga_barang', function($join) {
+                $join->on('hb_latest.barang_id', '=', 'harga_barang.barang_id')
+                    ->on('hb_latest.max_tanggal_mulai', '=', 'harga_barang.tanggal_mulai');
+            })
+            ->select('barang.*', 'kategori.nama_kategori as kategori_nama', 'harga_barang.harga_beli', 'harga_barang.harga_jual')
+            ->where('barang.id', $id)  // Hanya data dengan ID yang sesuai
+            ->first();  // Mengambil satu hasil
+
+        return $barang;
+    }
+
+    public static function updateBarang($request, $id)
+    {
+        // Validasi input dari request
+        $validator = Validator::make($request->all(), [
+            'nama' => 'required',
+            'minLimit' => 'required',
+            'maxLimit' => [
+                'required',
+                'numeric',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($value < $request->minLimit) {
+                        $fail('Max Limit tidak boleh lebih kecil daripada Min Limit');
+                    }
+                }
+            ],
+            'kategori_id' => 'required',
+        ], [
+            'nama.required' => 'Nama barang Barang wajib diisi',
+            'minLimit.required' => 'Min Limit wajib diisi',
+            'maxLimit.required' => 'Max Limit wajib diisi',
+            'kategori_id.required' => 'Kategori wajib diisi',
+        ]);
+
+        // Jika validasi gagal
+        if ($validator->fails()) {
+            return [
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ];
+        }
+
+        // Update data barang
+        $barang = [
+            'nama' => $request->nama,
+            'minLimit' => $request->minLimit,
+            'maxLimit' => $request->maxLimit,
+            'kategori_id' => $request->kategori_id,
+        ];
+
+        // Melakukan update pada barang berdasarkan id
+        self::where('id', $id)->update($barang);
+
+        // Menghapus data persetujuan terkait update
+        $userId = auth()->id();
+        Persetujuan::where('barang_id', $id)
+            ->where('user_id', $userId)
+            ->where('kerjaAksi', 'update')
+            ->where('namaTabel', 'Barang')
+            ->delete();
+
+        return [
+            'status' => 'success',
+            'message' => 'Berhasil melakukan update data produk!'
+        ];
+    }
 }

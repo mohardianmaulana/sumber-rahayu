@@ -5,16 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Barang;
 use App\Models\Kategori;
+use App\Models\HargaBarang;
+use App\Models\Pembelian;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Supplier;
-use Illuminate\View\View;
-use App\Exports\PenanggalanExport;
-use App\Exports\TokoExport;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Models\Penanggalan;
 use App\Models\Persetujuan;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -89,133 +85,34 @@ public function arsip(Request $request)
     }
 
     public function create(Request $request)
-{
-    // Mengambil nilai id_qr dari request jika ada
-    $id_qr = $request->input('id_qr');
+    {
+        // Mengambil nilai id_qr dari request jika ada
+        $id_qr = $request->input('id_qr');
 
-    // Mengambil data supplier dan kategori dari database
-    $supplier = Supplier::where('status', 1)->get();
-    $kategori = Kategori::where('status', 1)->get();
+        // Memanggil method dari model Pembelian untuk mendapatkan data
+        $formData = Pembelian::tambahBaru();
 
-    // Mengirimkan id_qr ke view jika ada
-    return view('pembelian.create_barang', compact('kategori', 'supplier', 'id_qr'));
-}
-
-
-    public function store(Request $request) 
-{
-    $validator = Validator::make($request->all(), [
-        'nama' => 'required',
-        'jumlah' => 'required|numeric|min:0',
-        'harga_beli' => 'required|numeric|min:1',
-        'harga_jual' => 'required|numeric|min:1',
-        'minLimit' => 'required|numeric|min:1',
-        'maxLimit' => [
-            'required', 
-            'numeric',
-            'min:1',
-            function ($attribute, $value, $fail) use ($request) {
-                if ($value < $request->minLimit) {
-                    $fail('Max Limit tidak boleh lebih kecil daripada Min Limit');
-                }
-            }
-        ],
-        'kategori_id' => 'required',
-        'supplier_id' => 'required'
-    ], [
-        'nama.required' => 'Nama Barang wajib diisi',
-        'jumlah.required' => 'Jumlah wajib diisi',
-        'jumlah.min' => 'Jumlah tidak boleh kurang dari 0',
-        'harga_beli.required' => 'Harga beli wajib diisi',
-        'harga_beli.min' => 'Harga beli tidak boleh kurang dari 0',
-        'harga_jual.required' => 'Harga jual wajib diisi',
-        'harga_jual.min' => 'Harga jual tidak boleh kurang dari 0',
-        'minLimit.required' => 'Min Limit wajib diisi',
-        'minLimit.min' => 'Min Limit tidak boleh kurang dari 0',
-        'maxLimit.required' => 'Max Limit wajib diisi',
-        'maxLimit.min' => 'Max Limit tidak boleh kurang dari 0',
-        'kategori_id.required' => 'Kategori wajib diisi',
-        'supplier_id.required' => 'Supplier wajib diisi',
-    ]);
-
-    if ($validator->fails()) {
-        return redirect()->back()
-                        ->withErrors($validator)
-                        ->withInput();
+        // Mengirimkan data ke view termasuk id_qr jika ada
+        return view('pembelian.create_barang', array_merge($formData, compact('id_qr')));
     }
 
-    // Simpan ke tabel barang
-    $barang = Barang::create([
-        'id_qr' => $request->id_qr,
-        'nama' => $request->nama,
-        'jumlah' => $request->jumlah,  // Jangan menambahkan jumlah di sini, biarkan sebagai jumlah input
-        'harga_jual' => $request->harga_jual,
-        'harga_beli' => $request->harga_beli,
-        'minLimit' => $request->minLimit,
-        'maxLimit' => $request->maxLimit,
-        'kategori_id' => $request->kategori_id,
-        'status' => 1,
-    ]);
 
-    // Hitung total harga
-    $harga_beli = $request->harga_beli;
-    $jumlah = $request->jumlah;
-    $totalHarga = $harga_beli * $jumlah;
+    public function store(Request $request)
+    {
+        // Memanggil method di model Barang untuk melakukan penyimpanan
+        $result = Barang::storeBarang($request);
 
-    // Simpan ke tabel pembelian
-    $pembelian = Pembelian::create([
-        'supplier_id' => $request->supplier_id,
-        'total_item' => $jumlah,
-        'total_harga' => $totalHarga,
-        'tanggal_transaksi' => now(),
-        'user_id' => Auth::id(),
-    ]);
-
-    // Simpan ke tabel pivot barang_pembelian
-    $pembelian->barangs()->attach($barang->id, [
-        'jumlah' => $jumlah, 
-        'harga' => $harga_beli, 
-        'jumlah_itemporary' => $jumlah, 
-    ]);
-
-    // Perbarui stok barang
-    $barang->jumlah = $jumlah;  // Menggunakan jumlah input asli
-    $barang->save();
-
-    // Periksa dan perbarui harga_barang
-    $hargaBarang = HargaBarang::where('barang_id', $barang->id)
-        ->where('supplier_id', $request->supplier_id)
-        ->whereNull('tanggal_selesai')
-        ->first();
-
-    if ($hargaBarang) {
-        if ($hargaBarang->harga_beli != $harga_beli) {
-            $hargaBarang->tanggal_selesai = now();
-            $hargaBarang->save();
-
-            // Buat baris baru dengan harga dan supplier baru
-            HargaBarang::create([
-                'barang_id' => $barang->id,
-                'harga_beli' => $harga_beli,
-                'harga_jual' => $request->harga_jual,
-                'supplier_id' => $request->supplier_id,
-                'tanggal_mulai' => now(),
-                'tanggal_selesai' => null,
-            ]);
+        // Memeriksa status hasil dari model
+        if ($result['status'] == 'error') {
+            // Jika ada error validasi, kembali ke form dengan error
+            return redirect()->back()
+                             ->withErrors($result['errors'])
+                             ->withInput();
         }
-    } else {
-        HargaBarang::create([
-            'barang_id' => $barang->id,
-            'harga_beli' => $harga_beli,
-            'harga_jual' => $request->harga_jual,
-            'supplier_id' => $request->supplier_id,
-            'tanggal_mulai' => now(),
-            'tanggal_selesai' => null,
-        ]);
-    }
 
-    return redirect()->to('pembelian')->with('success', 'Produk berhasil ditambahkan');
-}
+        // Jika berhasil, redirect ke halaman pembelian dengan pesan sukses
+        return redirect()->to('pembelian')->with('success', $result['message']);
+    }
 
 
 //     public function create()
@@ -272,117 +169,50 @@ public function arsip(Request $request)
 // }
 
 public function checkEdit($id)
-{
-    $barang = Barang::find($id);
-    $userId = Auth::id();
-    $kerjaAksi = "update";
-    $namaTabel = "Barang";
-    $data = [
-        'supplier_id' => null,
-        'customer_id' => null,
-        'kategori_id' => null,
-        'barang_id' => $barang->id,
-        'user_id' => $userId,
-        'kerjaAksi' => $kerjaAksi,
-        'namaTabel' => $namaTabel,
-        'lagiProses' => 0,
-        'kodePersetujuan' => null,
-    ];
+    {
+        $userId = Auth::id();
 
-    $persetujuan = Persetujuan::where('barang_id', $barang->id)
-        ->where('user_id', $userId)
-        ->where('kerjaAksi', $kerjaAksi)
-        ->where('namaTabel', $namaTabel)
-        ->first();
+        // Memanggil method di model Persetujuan
+        $result = Persetujuan::checkEditBarang($id, $userId);
 
-    $persetujuanIsiForm = $persetujuan && $persetujuan->kodePersetujuan !== null;
-    $persetujuanDisetujui = $persetujuanIsiForm && $persetujuan->lagiProses == 1;
-
-    if (!$persetujuan) {
-        $persetujuan = new Persetujuan;
-        $persetujuan->fill($data);
-        $persetujuan->timestamps = false;
-        $persetujuan->save();
-        return redirect()->to('/barang')->with('success', 'Persetujuan berhasil diajukan');
-    } elseif ($persetujuanDisetujui) {
-        return redirect()->route('barang.edit', $barang->id);
-    } elseif ($persetujuanIsiForm) {
-        return view('persetujuan.konfirmasi', compact('persetujuan'));
-    } else {
-        return redirect()->to('/barang')->with('info', 'Tunggu persetujuan dari owner.');
+        // Memproses hasil dari model
+        if (isset($result['redirect'])) {
+            return redirect()->to($result['redirect'])->with($result['status'] ?? 'info', $result['message'] ?? '');
+        } elseif (isset($result['view'])) {
+            return view($result['view'], $result['data']);
+        }
     }
-}
 
 
 
-public function edit($id)
-{
-    // Membuat subquery untuk mendapatkan harga terbaru dari tabel harga_barang
-    $subquery = DB::table('harga_barang')
-        ->select('barang_id', DB::raw('MAX(tanggal_mulai) as max_tanggal_mulai'))
-        ->groupBy('barang_id');
+    public function edit($id)
+    {
+        // Memanggil method di model Barang untuk mendapatkan data
+        $barang = Barang::ubah($id);
 
-    // Membuat query join antara tabel 'barang', 'kategori', dan 'harga_barang' menggunakan subquery
-    $barang = Barang::join('kategori', 'barang.kategori_id', '=', 'kategori.id')
-        ->joinSub($subquery, 'hb_latest', function($join) {
-            $join->on('barang.id', '=', 'hb_latest.barang_id');
-        })
-        ->join('harga_barang', function($join) {
-            $join->on('hb_latest.barang_id', '=', 'harga_barang.barang_id')
-                ->on('hb_latest.max_tanggal_mulai', '=', 'harga_barang.tanggal_mulai');
-        })
-        ->select('barang.*', 'kategori.nama_kategori as kategori_nama', 'harga_barang.harga_beli', 'harga_barang.harga_jual')
-        ->where('barang.id', $id)  // Tambahkan kondisi ini untuk memastikan hanya data yang sesuai ID yang diambil
-        ->first();  // Menggunakan first() untuk mengambil satu hasil
+        // Mengambil semua kategori
+        $kategori = Kategori::all();
 
-    $kategori = Kategori::all();
-
-    return view('barang.edit', compact('barang', 'kategori'));
-}
+        // Mengirimkan data ke view
+        return view('barang.edit', compact('barang', 'kategori'));
+    }
 
 
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'nama' => 'required',
-            'minLimit' => 'required',
-            'maxLimit' => [
-                'required',
-                'numeric',
-                function ($attribute, $value, $fail) use ($request) {
-                    if ($value < $request->minLimit) {
-                        $fail('Max Limit tidak boleh lebih kecil daripada Min Limit');
-                    }
-                }
-            ],
-            'kategori_id' => 'required',
-        ], [
-            'nama.required'=>'Nama barang Barang wajib diisi',
-            'minLimit.required'=>'Min Limit wajib diisi',
-            'maxLimit.required'=>'Max Limit wajib diisi',
-            'kategori_id.required'=>'Kategori wajib diisi',
-        ]);
+        // Memanggil method di model Barang untuk melakukan update
+        $result = Barang::updateBarang($request, $id);
 
-        if ($validator->fails()) {
+        // Memeriksa status hasil dari model
+        if ($result['status'] == 'error') {
+            // Jika ada error validasi, kembali ke form dengan error
             return redirect()->back()
-                             ->withErrors($validator)
+                             ->withErrors($result['errors'])
                              ->withInput();
         }
 
-        $barang = [
-            'nama'=>$request->nama,
-            'minLimit'=>$request->minLimit,
-            'maxLimit'=>$request->maxLimit,
-            'kategori_id'=>$request->kategori_id,
-        ];
-        Barang::where('id', $id)->update($barang);
-        $userId = Auth::id();
-        Persetujuan::where('barang_id', $id)
-            ->where('user_id', $userId)
-            ->where('kerjaAksi', 'update')
-            ->where('namaTabel', 'Barang')
-            ->delete();
-       return redirect()->to('barang')->with('success', 'Berhasil melakukan update data produk!');
+        // Jika update berhasil, redirect ke halaman barang dengan pesan sukses
+        return redirect()->to('barang')->with('success', $result['message']);
     }
 
 //     public function destroy($id)
