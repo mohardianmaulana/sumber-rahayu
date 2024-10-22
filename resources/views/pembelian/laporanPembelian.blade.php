@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Laporan Penjualan</title>
+    <title>Laporan Pembelian</title>
     @include('template.header')
 </head>
 
@@ -39,7 +39,7 @@
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
-                                            <th>ID</th>
+                                            <th>No</th>
                                             <th>Nama Barang</th>
                                             <th>Supplier</th>
                                             <th>Total Item</th>
@@ -51,7 +51,7 @@
                                     <tbody>
                                         @foreach ($pembelian as $item)
                                             <tr>
-                                                <td>{{ $item->id }}</td>
+                                                <td>{{ $loop->iteration }}</td>
                                                 <td>{{ $item->barang_nama }}</td>
                                                 <td>{{ $item->nama_supplier }}</td>
                                                 <td>{{ $item->total_item }}</td>

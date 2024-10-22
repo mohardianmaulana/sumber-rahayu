@@ -37,9 +37,10 @@
 </head>
 
 <body>
-    <h1>Scan kenapa lu sakit</h1>
+    <h1>Scan QR Code Pada Barang</h1>
     <video id="video" width="300" height="300" autoplay></video>
     <button id="startScan">Start Scan</button>
+    <button id="tambahTanpaQR">Tambah Barang Tanpa QR</button> <!-- Tambah Tombol Baru -->
     <div id="result"></div>
     <canvas id="canvas" style="display:none;"></canvas>
 
@@ -59,57 +60,62 @@
                 advanced: [{ torch: false, focusMode: 'continuous' }] // Jika ada, untuk mode fokus terus menerus
             }
         })
-            .then(stream => {
-                video.srcObject = stream;
-            })
-            .catch(err => {
-                console.error("Error accessing the camera: ", err);
-            });
+        .then(stream => {
+            video.srcObject = stream;
+        })
+        .catch(err => {
+            console.error("Error accessing the camera: ", err);
+        });
 
         document.getElementById('startScan').addEventListener('click', () => {
             scanQRCode();
         });
 
-        function scanQRCode() {
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-    const code = jsQR(imageData.data, canvas.width, canvas.height);
-
-    if (code) {
-        resultDiv.innerText = `QR Code detected: ${code.data}`;
-
-        // Mengirim hasil scan ke server menggunakan AJAX untuk pengecekan
-        fetch('/cek-qr', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}' // Laravel CSRF Token
-            },
-            body: JSON.stringify({
-                id_qr: code.data // Kirimkan hasil scan QR ke server
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.exists) {
-                resultDiv.innerText = 'QR Code sudah ada di database!';
-            } else {
-                resultDiv.innerText = 'QR Code baru, melanjutkan ke halaman tambah barang...';
-                // Redirect ke halaman tambah barang
-                window.location.href = '{{ route("create_barang") }}?id_qr=' + encodeURIComponent(code.data);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            resultDiv.innerText = 'Terjadi kesalahan saat memproses data.';
+        // Event listener untuk tombol Tambah Tanpa QR
+        document.getElementById('tambahTanpaQR').addEventListener('click', () => {
+            // Redirect ke halaman tambah barang tanpa QR
+            window.location.href = '{{ route("create_barang") }}'; 
         });
-    } else {
-        requestAnimationFrame(scanQRCode); // Jika belum ada kode, terus scan
-    }
-}
 
+        function scanQRCode() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+            if (code) {
+                resultDiv.innerText = `QR Code detected: ${code.data}`;
+
+                // Mengirim hasil scan ke server menggunakan AJAX untuk pengecekan
+                fetch('/cek-qr', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}' // Laravel CSRF Token
+                    },
+                    body: JSON.stringify({
+                        id_qr: code.data // Kirimkan hasil scan QR ke server
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        resultDiv.innerText = 'QR Code sudah ada di database!';
+                    } else {
+                        resultDiv.innerText = 'QR Code baru, melanjutkan ke halaman tambah barang...';
+                        // Redirect ke halaman tambah barang
+                        window.location.href = '{{ route("create_barang") }}?id_qr=' + encodeURIComponent(code.data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    resultDiv.innerText = 'Terjadi kesalahan saat memproses data.';
+                });
+            } else {
+                requestAnimationFrame(scanQRCode); // Jika belum ada kode, terus scan
+            }
+        }
     </script>
 </body>
 

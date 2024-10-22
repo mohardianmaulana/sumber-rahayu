@@ -343,7 +343,6 @@ public static function gantiPembelian($data, $id)
     ]);
 
     // Sinkronisasi data pivot table
-    $syncData = [];
     foreach ($data['barang_id'] as $index => $barang_id) {
         $harga = $data['harga_beli'][$index];
         $jumlah = $data['jumlah'][$index];
@@ -356,29 +355,38 @@ public static function gantiPembelian($data, $id)
 
         $jumlah_itemporary = $pivotData ? $pivotData->jumlah_itemporary : 0;
 
-        $syncData[$barang_id] = [
-            'jumlah' => $jumlah,
-            'harga' => $harga,
-            'jumlah_itemporary' => $jumlah,
-        ];
-
-        // Perbarui jumlah barang
-        $barang = Barang::find($barang_id);
+        // Jika data barang sudah ada di pivot table, kita akan menggunakan updateExistingPivot
         if ($pivotData) {
+            // Perbarui jumlah barang di pivot table
+            $pembelian->barangs()->updateExistingPivot($barang_id, [
+                'jumlah' => $jumlah,
+                'harga' => $harga,
+                'jumlah_itemporary' => $jumlah, // Jika Anda butuh menyimpan sementara
+            ]);
+
             // Logika untuk menyesuaikan jumlah barang
             if ($jumlah < $jumlah_itemporary) {
                 $selisihJumlah = $jumlah_itemporary - $jumlah;
+                $barang = Barang::find($barang_id);
                 $barang->jumlah -= $selisihJumlah;
+                $barang->save();
             } else if ($jumlah > $jumlah_itemporary) {
                 $selisihJumlah = $jumlah - $jumlah_itemporary;
+                $barang = Barang::find($barang_id);
                 $barang->jumlah += $selisihJumlah;
+                $barang->save();
             }
         } else {
-            $barang->jumlah += $jumlah;
-        }
+            // Jika data barang belum ada di pivot table, tambahkan data baru
+            $pembelian->barangs()->attach($barang_id, [
+                'jumlah' => $jumlah,
+                'harga' => $harga,
+                'jumlah_itemporary' => $jumlah,
+            ]);
 
-        // Hanya simpan jika jumlah berubah
-        if ($barang->isDirty('jumlah')) {
+            // Tambahkan jumlah barang baru
+            $barang = Barang::find($barang_id);
+            $barang->jumlah += $jumlah;
             $barang->save();
         }
 
@@ -396,10 +404,8 @@ public static function gantiPembelian($data, $id)
         }
     }
 
-    // Sinkronisasi data pivot
-    $pembelian->barangs()->sync($syncData);
-
     return $pembelian;
 }
+
 
 }
