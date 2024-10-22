@@ -47,7 +47,7 @@
                         @endif
                     <form action='{{ url('customer/'.$customer->id) }}' method='post'>
                         @csrf
-                        @method('PUT')
+                        @method('POST')
                             <a href='{{ url('customer') }}' class="btn btn-secondary btn-sm"> < Kembali</a>
                             <div class="mb-3 row">
                                 <label for="nama" class="col-sm-2 col-form-label">Nama Customer</label>

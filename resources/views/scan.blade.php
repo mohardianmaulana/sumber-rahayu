@@ -52,20 +52,27 @@
 
         // Mengakses kamera depan
         navigator.mediaDevices.getUserMedia({
-            video: {
-                facingMode: "environment",
-                width: { ideal: 1280 }, // Mengatur lebar ideal
-                height: { ideal: 720 }, // Mengatur tinggi ideal
-                // Menambahkan pengaturan autofocus
-                advanced: [{ torch: false, focusMode: 'continuous' }] // Jika ada, untuk mode fokus terus menerus
-            }
-        })
-        .then(stream => {
-            video.srcObject = stream;
-        })
-        .catch(err => {
-            console.error("Error accessing the camera: ", err);
-        });
+                video: {
+                    facingMode: "environment",
+                    width: {
+                        ideal: 1280
+                    }, // Mengatur lebar ideal
+                    height: {
+                        ideal: 720
+                    }, // Mengatur tinggi ideal
+                    // Menambahkan pengaturan autofocus
+                    advanced: [{
+                        torch: false,
+                        focusMode: 'continuous'
+                    }] // Jika ada, untuk mode fokus terus menerus
+                }
+            })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(err => {
+                console.error("Error accessing the camera: ", err);
+            });
 
         document.getElementById('startScan').addEventListener('click', () => {
             scanQRCode();
@@ -74,7 +81,7 @@
         // Event listener untuk tombol Tambah Tanpa QR
         document.getElementById('tambahTanpaQR').addEventListener('click', () => {
             // Redirect ke halaman tambah barang tanpa QR
-            window.location.href = '{{ route("create_barang") }}'; 
+            window.location.href = '{{ route('create_barang') }}';
         });
 
         function scanQRCode() {
@@ -89,29 +96,30 @@
 
                 // Mengirim hasil scan ke server menggunakan AJAX untuk pengecekan
                 fetch('/cek-qr', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}' // Laravel CSRF Token
-                    },
-                    body: JSON.stringify({
-                        id_qr: code.data // Kirimkan hasil scan QR ke server
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}' // Laravel CSRF Token
+                        },
+                        body: JSON.stringify({
+                            id_qr: code.data // Kirimkan hasil scan QR ke server
+                        })
                     })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.exists) {
-                        resultDiv.innerText = 'QR Code sudah ada di database!';
-                    } else {
-                        resultDiv.innerText = 'QR Code baru, melanjutkan ke halaman tambah barang...';
-                        // Redirect ke halaman tambah barang
-                        window.location.href = '{{ route("create_barang") }}?id_qr=' + encodeURIComponent(code.data);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    resultDiv.innerText = 'Terjadi kesalahan saat memproses data.';
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.exists) {
+                            resultDiv.innerText = 'QR Code sudah ada di database!, Nama Barang: ' + data.nama;
+                        } else {
+                            resultDiv.innerText = 'QR Code baru, melanjutkan ke halaman tambah barang...';
+                            // Redirect ke halaman tambah barang
+                            window.location.href = '{{ route('create_barang') }}?id_qr=' + encodeURIComponent(code
+                            .data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        resultDiv.innerText = 'Terjadi kesalahan saat memproses data.';
+                    });
             } else {
                 requestAnimationFrame(scanQRCode); // Jika belum ada kode, terus scan
             }

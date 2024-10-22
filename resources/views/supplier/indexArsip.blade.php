@@ -46,17 +46,6 @@
                                 {{ session('success') }}
                             </div>
                         @endif
-                    <!-- TOMBOL TAMBAH DATA -->
-                    <div class="pb-3" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            @if (Auth::check() && Auth::user()->hasRole('admin'))
-                            <a href="{{ 'supplier/create' }}" class="btn btn-primary btn-sm">
-                                <i class="fas fa-plus fa-xs"></i>
-                                Tambah Data
-                            </a>
-                            @endif
-                        </div>
-                    </div>
 
                     <table id="myTable" class="table table-striped">
                         <thead>

@@ -20,7 +20,7 @@ class BarangController extends Controller
     {
         // Memanggil method di model Barang untuk mendapatkan data barang
         $barang = Barang::getAllBarangWithKategoriAndHarga();
-        
+
         // Memanggil method untuk mendapatkan rata-rata harga beli
         $rataRataHargaBeli = Barang::getAverageHargaBeli();
 
@@ -32,14 +32,14 @@ class BarangController extends Controller
     }
 
 
-public function arsip(Request $request)
+    public function arsip(Request $request)
     {
         // Memanggil method di model Barang untuk mendapatkan data barang
         $barang = Barang::arsip();
 
         // Memanggil method untuk mendapatkan rata-rata harga beli
         $rataRataHargaBeli = Barang::getAverageHargaBeli();
-        
+
         // Mengambil semua data kategori dari tabel 'kategori'
         $kategori = Kategori::all();
         return view('barang.indexArsip', compact('barang', 'rataRataHargaBeli', 'kategori'));
@@ -55,7 +55,7 @@ public function arsip(Request $request)
     public function arsipkan($id)
     {
         $barang = Barang::arsipkan($id);
-        
+
         return redirect()->route('admin')->with('success', 'Barang berhasil diarsipkan.');
     }
 
@@ -73,16 +73,17 @@ public function arsip(Request $request)
         ]);
 
         // Cek apakah QR code sudah ada di database
-        $exists = Barang::where('id_qr', $request->id_qr)->exists();
+        $barang = Barang::where('id_qr', $request->id_qr)->first();
 
-        // Jika sudah ada, kirim response bahwa data sudah ada
-        if ($exists) {
-            return response()->json(['exists' => true]);
+        // Jika barang ada, kirim nama barang dan informasi bahwa QR sudah ada
+        if ($barang) {
+            return response()->json(['exists' => true, 'nama' => $barang->nama]);
         } else {
             // Jika tidak ada, kirim response bahwa data belum ada
             return response()->json(['exists' => false]);
         }
     }
+
 
     public function create(Request $request)
     {
@@ -106,8 +107,8 @@ public function arsip(Request $request)
         if ($result['status'] == 'error') {
             // Jika ada error validasi, kembali ke form dengan error
             return redirect()->back()
-                             ->withErrors($result['errors'])
-                             ->withInput();
+                ->withErrors($result['errors'])
+                ->withInput();
         }
 
         // Jika berhasil, redirect ke halaman pembelian dengan pesan sukses
@@ -115,60 +116,60 @@ public function arsip(Request $request)
     }
 
 
-//     public function create()
-//     {
-//         $kategori = Kategori::all();
-//         return view('barang.create',compact('kategori'));
-//     }
+    //     public function create()
+    //     {
+    //         $kategori = Kategori::all();
+    //         return view('barang.create',compact('kategori'));
+    //     }
 
-//     public function store(Request $request)
-// {
-//     $validator = Validator::make($request->all(), [
-//         'nama' => 'required',
-//         'jumlah' => 'required|numeric|min:0',
-//         'harga_jual' => 'required|numeric|min:1',
-//         'minLimit' => 'required|numeric',
-//         'maxLimit' => [
-//             'required',
-//             'numeric',
-//             function ($attribute, $value, $fail) use ($request) {
-//                 if ($value < $request->minLimit) {
-//                     $fail('Max Limit tidak boleh lebih kecil daripada Min Limit');
-//                 }
-//             }
-//         ],
-//         'kategori_id' => 'required',
-//     ], [
-//         'nama.required' => 'Nama Barang wajib diisi',
-//         'jumlah.required' => 'Jumlah wajib diisi',
-//         'jumlah.min'=>'Jumlah tidak boleh kurang dari 0',
-//         'harga_jual'=> 'Harga jual wajib diisi',
-//         'minLimit.required' => 'Min Limit wajib diisi',
-//         'maxLimit.required' => 'Max Limit wajib diisi',
-//         'kategori_id.required' => 'Kategori wajib diisi',
-//     ]);
+    //     public function store(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'nama' => 'required',
+    //         'jumlah' => 'required|numeric|min:0',
+    //         'harga_jual' => 'required|numeric|min:1',
+    //         'minLimit' => 'required|numeric',
+    //         'maxLimit' => [
+    //             'required',
+    //             'numeric',
+    //             function ($attribute, $value, $fail) use ($request) {
+    //                 if ($value < $request->minLimit) {
+    //                     $fail('Max Limit tidak boleh lebih kecil daripada Min Limit');
+    //                 }
+    //             }
+    //         ],
+    //         'kategori_id' => 'required',
+    //     ], [
+    //         'nama.required' => 'Nama Barang wajib diisi',
+    //         'jumlah.required' => 'Jumlah wajib diisi',
+    //         'jumlah.min'=>'Jumlah tidak boleh kurang dari 0',
+    //         'harga_jual'=> 'Harga jual wajib diisi',
+    //         'minLimit.required' => 'Min Limit wajib diisi',
+    //         'maxLimit.required' => 'Max Limit wajib diisi',
+    //         'kategori_id.required' => 'Kategori wajib diisi',
+    //     ]);
 
-//     if ($validator->fails()) {
-//         return redirect()->back()
-//                          ->withErrors($validator)
-//                          ->withInput();
-//     }
+    //     if ($validator->fails()) {
+    //         return redirect()->back()
+    //                          ->withErrors($validator)
+    //                          ->withInput();
+    //     }
 
-//     $barang = [
-//         'nama' => $request->nama,
-//         'jumlah' => $request->jumlah,
-//         'harga_jual' => $request->harga_jual,
-//         'minLimit' => $request->minLimit,
-//         'maxLimit' => $request->maxLimit,
-//         'kategori_id' => $request->kategori_id,
-//     ];
+    //     $barang = [
+    //         'nama' => $request->nama,
+    //         'jumlah' => $request->jumlah,
+    //         'harga_jual' => $request->harga_jual,
+    //         'minLimit' => $request->minLimit,
+    //         'maxLimit' => $request->maxLimit,
+    //         'kategori_id' => $request->kategori_id,
+    //     ];
 
-//     Barang::create($barang);
+    //     Barang::create($barang);
 
-//     return redirect()->to('barang')->with('success', 'Produk berhasil ditambahkan');
-// }
+    //     return redirect()->to('barang')->with('success', 'Produk berhasil ditambahkan');
+    // }
 
-public function checkEdit($id)
+    public function checkEdit($id)
     {
         $userId = Auth::id();
 
@@ -207,44 +208,44 @@ public function checkEdit($id)
         if ($result['status'] == 'error') {
             // Jika ada error validasi, kembali ke form dengan error
             return redirect()->back()
-                             ->withErrors($result['errors'])
-                             ->withInput();
+                ->withErrors($result['errors'])
+                ->withInput();
         }
 
         // Jika update berhasil, redirect ke halaman barang dengan pesan sukses
         return redirect()->to('barang')->with('success', $result['message']);
     }
 
-//     public function destroy($id)
-//     {
-//         Barang::where('id', $id)->delete();
-//         return redirect()->to('barang')->with('success', 'Berhasil menghapus data produk');
-//     }
+    //     public function destroy($id)
+    //     {
+    //         Barang::where('id', $id)->delete();
+    //         return redirect()->to('barang')->with('success', 'Berhasil menghapus data produk');
+    //     }
 
-//     public function barang(Request $request)
-// {
-//     $jumlahbaris = 10;
-//     $kategori = Kategori::all();
+    //     public function barang(Request $request)
+    // {
+    //     $jumlahbaris = 10;
+    //     $kategori = Kategori::all();
 
-//     // Buat query dasar dengan join.
-//     $query = Toko::join('kategori', 'toko.kategori_id', '=', 'kategori.id')
-//                  ->select('toko.*', 'kategori.nama_kategori as kategori_nama');
+    //     // Buat query dasar dengan join.
+    //     $query = Toko::join('kategori', 'toko.kategori_id', '=', 'kategori.id')
+    //                  ->select('toko.*', 'kategori.nama_kategori as kategori_nama');
 
-//     // Filter berdasarkan kategori jika diberikan
-//     if ($request->has('kategori_id') && $request->kategori_id != '') {
-//         $query->where('toko.kategori_id', $request->kategori_id);
-//     }
+    //     // Filter berdasarkan kategori jika diberikan
+    //     if ($request->has('kategori_id') && $request->kategori_id != '') {
+    //         $query->where('toko.kategori_id', $request->kategori_id);
+    //     }
 
-//     // Jika kata kunci disediakan, tambahkan sebagai filter.
-//     if ($request->has('katakunci') && strlen($request->katakunci)) {
-//         $query->where('toko.nama', 'like', "%{$request->katakunci}%");
-//     }
+    //     // Jika kata kunci disediakan, tambahkan sebagai filter.
+    //     if ($request->has('katakunci') && strlen($request->katakunci)) {
+    //         $query->where('toko.nama', 'like', "%{$request->katakunci}%");
+    //     }
 
-//     // Urutkan dan paginasi hasil query.
-//     $data = $query->orderBy('toko.kode', 'asc')->paginate($jumlahbaris);
+    //     // Urutkan dan paginasi hasil query.
+    //     $data = $query->orderBy('toko.kode', 'asc')->paginate($jumlahbaris);
 
-//     return view('barang.barang', ['data' => $data, 'kategori' => $kategori]);
-// }
+    //     return view('barang.barang', ['data' => $data, 'kategori' => $kategori]);
+    // }
 
     // public function exportExcel()
     // {
@@ -277,23 +278,22 @@ public function checkEdit($id)
     {
         // Generate 6 digit random code
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        
+
         // Update the 'kodePersetujuan' field in 'persetujuan' table where 'id' equals $id
         $persetujuan = Persetujuan::find($id);
         if ($persetujuan) {
             // Temporarily disable timestamps
             $persetujuan->timestamps = false;
-    
+
             // Update the kodePersetujuan field
             $persetujuan->kodePersetujuan = $code;
-    
+
             // Save the changes without updating timestamps
             $persetujuan->save();
-    
+
             return response()->json(['success' => true, 'kodePersetujuan' => $code]);
         } else {
             return response()->json(['success' => false, 'message' => 'Data persetujuan tidak ditemukan.'], 404);
         }
     }
-    
 }

@@ -29,22 +29,14 @@ class KategoriController extends Controller
 
     public function pulihkan($id)
     {
-        $kategori = Kategori::find($id);
-        if ($kategori) {
-            $kategori->status = 1;
-            $kategori->save();
-        }
+        $kategori = Kategori::pulihkan($id);
 
         return redirect()->route('kategori.lama')->with('success', 'Kategori berhasil dipulihkan.');
     }
 
     public function arsipkan($id)
     {
-        $kategori = Kategori::find($id);
-        if ($kategori) {
-            $kategori->status = 0;
-            $kategori->save();
-        }
+        $kategori = Kategori::arsipkan($id);
 
         return redirect()->route('kategori')->with('success', 'Kategori berhasil diarsipkan.');
     }
@@ -85,24 +77,23 @@ class KategoriController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        $request->validate([
-            'nama_kategori' => 'required',
-        ], [
-            'nama_kategori.required'=>'Nama barang Barang wajib diisi',
-        ]);
-        $kategori = [
-            'nama_kategori'=>$request->nama_kategori,
-        ];
-        Kategori::where('id', $id)->update($kategori);
-        $userId = Auth::id();
-        Persetujuan::where('kategori_id', $id)
-            ->where('user_id', $userId)
-            ->where('kerjaAksi', 'update')
-            ->where('namaTabel', 'Kategori')
-            ->delete();
-       return redirect()->to('kategori')->with('success', 'Berhasil melakukan update data kategori');
-    }
+{
+    $request->validate([
+        'nama_kategori' => 'required',
+    ], [
+        'nama_kategori.required' => 'Nama barang Barang wajib diisi',
+    ]);
+
+    // Siapkan data kategori yang ingin diupdate
+    $data = [
+        'nama_kategori' => $request->nama_kategori,
+    ];
+
+    // Panggil method `updateKategori` dari model Kategori
+    Kategori::updateKategori($id, $data);
+
+    return redirect()->to('kategori')->with('success', 'Berhasil melakukan update data kategori');
+}
     public function checkEdit($id)
     {
         $kategori = Kategori::find($id);

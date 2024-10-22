@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Persetujuan;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Customer;
+use App\Models\Barang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,7 +14,6 @@ class CustomerController extends Controller
 {
     public function index(Request $request)
     {
-        // Mengambil data customer yang statusnya 1
         $customers = Customer::where('status', 1)->get();
         
         return view('customer.index', compact('customers'));
@@ -29,22 +29,14 @@ class CustomerController extends Controller
 
     public function pulihkan($id)
     {
-        $customer = Customer::find($id);
-        if ($customer) {
-            $customer->status = 1;
-            $customer->save();
-        }
+        $customer = Customer::pulihkan($id);
 
         return redirect()->route('customer.lama')->with('success', 'Customer berhasil dipulihkan.');
     }
 
     public function arsipkan($id)
     {
-        $customer = Customer::find($id);
-        if ($customer) {
-            $customer->status = 0;
-            $customer->save();
-        }
+        $customer = Customer::pulihkan($id);
 
         return redirect()->route('customer')->with('success', 'Customer berhasil diarsipkan.');
     }
@@ -56,81 +48,44 @@ class CustomerController extends Controller
 
     public function checkEdit($id)
     {
-        $customer = Customer::find($id);
         $userId = Auth::id();
-        $kerjaAksi = "update";
-        $namaTabel = "Customer";
-        $data = [
-            'supplier_id' => null,
-            'customer_id' => $customer->id,
-            'kategori_id' => null,
-            'barang_id' => null,
-            'user_id' => $userId,
-            'kerjaAksi' => $kerjaAksi,
-            'namaTabel' => $namaTabel,
-            'lagiProses' => 0,
-            'kodePersetujuan' => null,
-        ];
-    
-        $persetujuan = Persetujuan::where('customer_id', $customer->id)
-            ->where('user_id', $userId)
-            ->where('kerjaAksi', $kerjaAksi)
-            ->where('namaTabel', $namaTabel)
-            ->first();
-    
-        $persetujuanIsiForm = $persetujuan && $persetujuan->kodePersetujuan !== null;
-        $persetujuanDisetujui = $persetujuanIsiForm && $persetujuan->lagiProses == 1;
-    
-        if (!$persetujuan) {
-            $persetujuan = new Persetujuan;
-            $persetujuan->fill($data);
-            $persetujuan->timestamps = false;
-            $persetujuan->save();
-            return redirect()->to('/customer')->with('success', 'Persetujuan berhasil diajukan');
-        } elseif ($persetujuanDisetujui) {
-            return redirect()->route('customer.edit', $customer->id);
-        } elseif ($persetujuanIsiForm) {
-            return view('persetujuan.konfirmasi', compact('persetujuan'));
-        } else {
-            return redirect()->to('/customer')->with('info', 'Tunggu persetujuan dari owner.');
+
+        // Memanggil method di model Persetujuan
+        $result = Persetujuan::checkEditCustomer($id, $userId);
+
+        // Memproses hasil dari model
+        if (isset($result['redirect'])) {
+            return redirect()->to($result['redirect'])->with($result['status'] ?? 'info', $result['message'] ?? '');
+        } elseif (isset($result['view'])) {
+            return view($result['view'], $result['data']);
         }
     }
     
 
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'nama' => 'required',
-            'nomor' => 'required',
-            'alamat' => 'required',
-        ], [
-            'nama.required'=>'Nama customer wajib diisi',
-            'nomor.required'=>'Nomor HP wajib diisi',
-            'alamat.required'=>'Alamat wajib diisi',
-        ]);
-        
-        if ($validator->fails()) {
+        $result = Customer::storeCustomer($request);
+
+        if ($result['status'] == 'error') {
+            // Jika ada error validasi, kembali ke form dengan error
             return redirect()->back()
-                             ->withErrors($validator)
+                             ->withErrors($result['errors'])
                              ->withInput();
         }
 
-        $customer = [
-            'nama'=>$request->nama,
-            'nomor'=>$request->nomor,
-            'alamat'=>$request->alamat,
-            'status' => 1, // Set status to 1
-        ];
-        Customer::create($customer);
        return redirect()->to('customer')->with('success', 'Customer berhasil ditambahkan');
     }
 
     public function edit($id)
-    {
-        $customer = Customer::where('id', $id)->first();
-        return view('customer.edit')->with('customer', $customer);
-    }
+{
+    // Memanggil method getById dari model Customer
+    $customer = Customer::editCustomer($id);
+
+    // Mengirim data customer ke view
+    return view('customer.edit')->with('customer', $customer);
+}
     
+    // CustomerController.php
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -138,28 +93,22 @@ class CustomerController extends Controller
             'nomor' => 'required',
             'alamat' => 'required',
         ], [
-            'nama.required'=>'Nama customer wajib diisi',
-            'nomor.required'=>'Nomor HP wajib diisi',
-            'alamat.required'=>'Alamat wajib diisi',
+            'nama.required' => 'Nama customer wajib diisi',
+            'nomor.required' => 'Nomor HP wajib diisi',
+            'alamat.required' => 'Alamat wajib diisi',
         ]);
-        $customer = [
-            'nama'=>$request->nama,
-            'nomor'=>$request->nomor,
-            'alamat'=>$request->alamat,
+    
+        // Siapkan data customer yang akan diupdate
+        $data = [
+            'nama' => $request->nama,
+            'nomor' => $request->nomor,
+            'alamat' => $request->alamat,
         ];
-        Customer::where('id', $id)->update($customer);
-        $userId = Auth::id();
-        Persetujuan::where('supplier_id', $id)
-            ->where('user_id', $userId)
-            ->where('kerjaAksi', 'update')
-            ->where('namaTabel', 'Customer')
-            ->delete();
-       return redirect()->to('customer')->with('success', 'Customer berhasil ditambahkan');
-    }
+    
+        // Panggil method `updateCustomer` dari model Customer
+        Customer::updateCustomer($id, $data);
+    
+        return redirect()->to('customer')->with('success', 'Customer berhasil diperbarui');
+}
 
-    public function destroy($id)
-    {
-        Customer::where('id', $id)->delete();
-        return redirect()->to('customer')->with('success', 'Berhasil menghapus data customer');
-    }
 }

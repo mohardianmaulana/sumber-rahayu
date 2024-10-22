@@ -107,4 +107,193 @@ class Persetujuan extends Model
             ];
         }
     }
+
+    public static function checkEditSupplier($supplierId, $userId)
+    {
+        // Mengambil data barang berdasarkan ID
+        $supplier = Supplier::find($supplierId);
+        
+        // Mengatur data dasar persetujuan
+        $kerjaAksi = "update";
+        $namaTabel = "Supplier";
+        $data = [
+            'supplier_id' => $supplier->id,
+            'customer_id' => null,
+            'kategori_id' => null,
+            'barang_id' => null,
+            'user_id' => $userId,
+            'kerjaAksi' => $kerjaAksi,
+            'namaTabel' => $namaTabel,
+            'lagiProses' => 0,
+            'kodePersetujuan' => null,
+        ];
+
+        // Mencari persetujuan berdasarkan kondisi yang ada
+        $persetujuan = self::where('supplier_id', $supplier->id)
+            ->where('user_id', $userId)
+            ->where('kerjaAksi', $kerjaAksi)
+            ->where('namaTabel', $namaTabel)
+            ->first();
+
+        // Memeriksa apakah persetujuan sudah diisi dan dalam proses
+        $persetujuanIsiForm = $persetujuan && $persetujuan->kodePersetujuan !== null;
+        $persetujuanDisetujui = $persetujuanIsiForm && $persetujuan->lagiProses == 1;
+
+        // Jika persetujuan belum ada, buat persetujuan baru
+        if (!$persetujuan) {
+            $persetujuan = new self;
+            $persetujuan->fill($data);
+            $persetujuan->timestamps = false;
+            $persetujuan->save();
+            return [
+                'redirect' => '/supplier',
+                'status' => 'success',
+                'message' => 'Persetujuan berhasil diajukan'
+            ];
+        } elseif ($persetujuanDisetujui) {
+            // Jika persetujuan sudah disetujui, arahkan ke halaman edit barang
+            return [
+                'redirect' => route('supplier.edit', $supplier->id)
+            ];
+        } elseif ($persetujuanIsiForm) {
+            // Jika persetujuan sedang diproses, kirim ke view konfirmasi
+            return [
+                'view' => 'persetujuan.konfirmasi',
+                'data' => compact('persetujuan')
+            ];
+        } else {
+            // Jika persetujuan belum disetujui, beri pesan menunggu persetujuan
+            return [
+                'redirect' => '/supplier',
+                'status' => 'info',
+                'message' => 'Tunggu persetujuan dari owner.'
+            ];
+        }
+    }
+
+    public static function checkEditCustomer($customerId, $userId)
+    {
+        // Mengambil data barang berdasarkan ID
+        $customer = Customer::find($customerId);
+        
+        // Mengatur data dasar persetujuan
+        $kerjaAksi = "update";
+        $namaTabel = "Customer";
+        $data = [
+            'supplier_id' => null,
+            'customer_id' => $customer->id,
+            'kategori_id' => null,
+            'barang_id' => null,
+            'user_id' => $userId,
+            'kerjaAksi' => $kerjaAksi,
+            'namaTabel' => $namaTabel,
+            'lagiProses' => 0,
+            'kodePersetujuan' => null,
+        ];
+
+        // Mencari persetujuan berdasarkan kondisi yang ada
+        $persetujuan = self::where('customer_id', $customer->id)
+            ->where('user_id', $userId)
+            ->where('kerjaAksi', $kerjaAksi)
+            ->where('namaTabel', $namaTabel)
+            ->first();
+
+        // Memeriksa apakah persetujuan sudah diisi dan dalam proses
+        $persetujuanIsiForm = $persetujuan && $persetujuan->kodePersetujuan !== null;
+        $persetujuanDisetujui = $persetujuanIsiForm && $persetujuan->lagiProses == 1;
+
+        // Jika persetujuan belum ada, buat persetujuan baru
+        if (!$persetujuan) {
+            $persetujuan = new self;
+            $persetujuan->fill($data);
+            $persetujuan->timestamps = false;
+            $persetujuan->save();
+            return [
+                'redirect' => '/customer',
+                'status' => 'success',
+                'message' => 'Persetujuan berhasil diajukan'
+            ];
+        } elseif ($persetujuanDisetujui) {
+            // Jika persetujuan sudah disetujui, arahkan ke halaman edit barang
+            return [
+                'redirect' => route('customer.edit', $customer->id)
+            ];
+        } elseif ($persetujuanIsiForm) {
+            // Jika persetujuan sedang diproses, kirim ke view konfirmasi
+            return [
+                'view' => 'persetujuan.konfirmasi',
+                'data' => compact('persetujuan')
+            ];
+        } else {
+            // Jika persetujuan belum disetujui, beri pesan menunggu persetujuan
+            return [
+                'redirect' => '/customer',
+                'status' => 'info',
+                'message' => 'Tunggu persetujuan dari owner.'
+            ];
+        }
+    }
+
+    public static function checkEditKategori($kategoriId, $userId)
+    {
+        // Mengambil data barang berdasarkan ID
+        $kategori = Kategori::find($kategoriId);
+        
+        // Mengatur data dasar persetujuan
+        $kerjaAksi = "update";
+        $namaTabel = "Kategori";
+        $data = [
+            'supplier_id' => null,
+            'customer_id' => null,
+            'kategori_id' => $kategori->id,
+            'barang_id' => null,
+            'user_id' => $userId,
+            'kerjaAksi' => $kerjaAksi,
+            'namaTabel' => $namaTabel,
+            'lagiProses' => 0,
+            'kodePersetujuan' => null,
+        ];
+
+        // Mencari persetujuan berdasarkan kondisi yang ada
+        $persetujuan = self::where('kategori_id', $kategori->id)
+            ->where('user_id', $userId)
+            ->where('kerjaAksi', $kerjaAksi)
+            ->where('namaTabel', $namaTabel)
+            ->first();
+
+        // Memeriksa apakah persetujuan sudah diisi dan dalam proses
+        $persetujuanIsiForm = $persetujuan && $persetujuan->kodePersetujuan !== null;
+        $persetujuanDisetujui = $persetujuanIsiForm && $persetujuan->lagiProses == 1;
+
+        // Jika persetujuan belum ada, buat persetujuan baru
+        if (!$persetujuan) {
+            $persetujuan = new self;
+            $persetujuan->fill($data);
+            $persetujuan->timestamps = false;
+            $persetujuan->save();
+            return [
+                'redirect' => '/kategori',
+                'status' => 'success',
+                'message' => 'Persetujuan berhasil diajukan'
+            ];
+        } elseif ($persetujuanDisetujui) {
+            // Jika persetujuan sudah disetujui, arahkan ke halaman edit barang
+            return [
+                'redirect' => route('kategori.edit', $kategori->id)
+            ];
+        } elseif ($persetujuanIsiForm) {
+            // Jika persetujuan sedang diproses, kirim ke view konfirmasi
+            return [
+                'view' => 'persetujuan.konfirmasi',
+                'data' => compact('persetujuan')
+            ];
+        } else {
+            // Jika persetujuan belum disetujui, beri pesan menunggu persetujuan
+            return [
+                'redirect' => '/kategori',
+                'status' => 'info',
+                'message' => 'Tunggu persetujuan dari owner.'
+            ];
+        }
+    }
 }
