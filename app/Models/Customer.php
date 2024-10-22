@@ -23,13 +23,16 @@ class Customer extends Model
             $customer->status = 1;
             $customer->save();
         }
+        return $customer;
     }
+    
     public static function arsipkan($id) {
         $customer = Customer::find($id);
         if ($customer) {
             $customer->status = 0;
             $customer->save();
         }
+        return $customer;
     }
 
     public static function storeCustomer($request){
@@ -72,7 +75,7 @@ class Customer extends Model
 
         // Hapus persetujuan yang sesuai
         $userId = Auth::id();
-        Persetujuan::where('supplier_id', $id)
+        Persetujuan::where('customer_id', $id)
             ->where('user_id', $userId)
             ->where('kerjaAksi', 'update')
             ->where('namaTabel', 'Customer')

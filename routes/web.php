@@ -60,7 +60,7 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::post('/customer', [CustomerController::class, 'store']) ->name("customer.store")->middleware('can:crud');
     Route::get('/customer/{customer}/edit', [CustomerController::class, 'edit']) ->name("customer.edit")->middleware('can:crud');
     Route::get('/customer/{customer}/checkEdit', [CustomerController::class, 'checkEdit'])->name("customer.checkEdit");
-    Route::put('/customer/{customer}', [CustomerController::class, 'update']) ->name("customer.update")->middleware('can:crud');
+    Route::post('/customer/{customer}', [CustomerController::class, 'update']) ->name("customer.update")->middleware('can:crud');
     Route::delete('/customer/{customer}', [CustomerController::class, 'destroy']) ->name("customer.destroy")->middleware('can:crud');
 
     //***************************************************/ KATEGORI /*****************************************//

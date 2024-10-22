@@ -36,7 +36,7 @@ class CustomerController extends Controller
 
     public function arsipkan($id)
     {
-        $customer = Customer::pulihkan($id);
+        $customer = Customer::arsipkan($id);
 
         return redirect()->route('customer')->with('success', 'Customer berhasil diarsipkan.');
     }
