@@ -43,7 +43,7 @@
                                             <th>Nama Barang</th>
                                             <th>Customer</th>
                                             <th>Total Item</th>
-                                            <th>Total Harga</th>
+                                            <th>Harga</th>
                                             <th>Bayar</th>
                                             <th>Kembali</th>
                                             <th>Pegawai</th>
