@@ -98,7 +98,7 @@ Route::middleware('auth', 'verified')->group(function () {
     //***************************************************/ PENJUALAN /*****************************************//
     Route::get('/penjualan', [PenjualanController::class, 'index'])->name('penjualan')->middleware('can:view');
     Route::get('/penjualan/lama', [PenjualanController::class, 'oldPurchases'])->name('penjualan.lama')->middleware('can:view');
-    Route::get('/penjualan/create', [PenjualanController::class, 'create'])->name('create')->middleware('can:crud');
+    Route::get('/penjualan/create', [PenjualanController::class, 'create'])->name('penjualan.create')->middleware('can:crud');
     Route::get('/scan_qr', [PenjualanController::class, 'scanPage'])->name('scan_qr');
     Route::post('/cek_qr', [PenjualanController::class, 'cekQR'])->name('cek_qr');
     Route::post('/penjualan/tambah-sesi', [PenjualanController::class, 'tambahSesi'])->name('penjualan.tambahSesi');

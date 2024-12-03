@@ -7,6 +7,7 @@
     <title>Selamat Datang</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+    <script async src="https://www.google.com/recaptcha/api.js"></script>
     <style>
         body{
             background-image: url('img/back.jpg')
@@ -49,6 +50,11 @@
                             <label>Password</label>
                             <input type="password" name="password" class="form-control" placeholder="Password" required="">
                         </div>
+                        <div>
+
+                        </div>
+                        <!-- Google Recaptcha Widget-->
+                        <div class="g-recaptcha mt-4" data-sitekey={{config('services.recaptcha.key')}}></div>
                         <button type="submit" class="btn btn-primary btn-block">Log In</button>
                     </form>
                 </div>

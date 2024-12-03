@@ -174,10 +174,13 @@
 
     <script>
         $(document).ready(function() {
-            // $('#searchButton').on('click', function() {
-            //     // Redirect to the /cek_qr URL
-            //     window.location.href = '/scan_qr';
-            // });
+            if (sessionStorage.getItem('reloadAndCalculate') === 'true') {
+                // Panggil fungsi hitungTotal untuk menghitung total harga setelah reload
+                hitungTotal();
+                
+                // Hapus flag reloadAndCalculate setelah dipanggil
+                sessionStorage.removeItem('reloadAndCalculate');
+            }
 
             // Saat memilih barang dari modal
             $(document).on('click', '.pilihBarangBtn', function() {
@@ -481,8 +484,9 @@
                                             },
                                             success: function(response) {
                                                 console.log(response.message);
-                                                // Tambahkan barang ke tabel tanpa menutup modal
-                                                addBarangToTable(data.id, data.nama, data.harga); // Tampilkan barang di tabel
+                                                // Tandai bahwa halaman perlu di-reload dan fungsi hitungTotal akan dipanggil
+                                                sessionStorage.setItem('reloadAndCalculate', 'true'); // Set flag reloadPage
+                                                location.reload();
                                             },
                                             error: function(xhr) {
                                                 console.error(xhr.responseText);
@@ -497,6 +501,18 @@
                                 requestAnimationFrame(scanQRCode);
                             }
                         }
+
+                        // Fungsi untuk menangani logika setelah halaman di-reload
+                        $(document).ready(function() {
+                                // Periksa apakah ada flag reloadAndCalculate di sessionStorage
+                                if (sessionStorage.getItem('reloadAndCalculate') === 'true') {
+                                    // Panggil fungsi hitungTotal untuk menghitung total harga setelah reload
+                                    hitungTotal();
+                                    
+                                    // Hapus flag reloadAndCalculate setelah dipanggil
+                                    sessionStorage.removeItem('reloadAndCalculate');
+                                }
+                            });
                     </script>
                 </div>
                 {{-- <div class="modal-footer">
