@@ -20,6 +20,7 @@
         video {
             border: 2px solid black;
             margin-bottom: 20px;
+            transform: scaleX(-1);
         }
 
         button {

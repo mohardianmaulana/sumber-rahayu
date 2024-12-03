@@ -74,7 +74,7 @@
                               @foreach ($pembelian as $item)
                                   <tr class="text-center">
                                       <td class="col-md-1 text-center">{{ $loop->iteration }}</td>
-                                      <td class="col-md-1 text-center">{{ $item->formatted_tanggal_transaksi }}</td>
+                                      <td class="col-md-1 text-center">{{ \Carbon\Carbon::parse($item->tanggal_transaksi)->format('d-m-Y') }}</td>
                                       <td class="col-md-1 text-center">{{ $item->supplier_nama }}</td>
                                       <td class="col-md-1 text-center">{{ $item->total_item }}</td>
                                       <td class="col-md-1 text-center">Rp. {{ number_format($item->total_harga, 0, ',', '.') }}</td>

@@ -14,6 +14,7 @@
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 
+    <script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
     <style>
         .whatsapp-icon {
             color: #6c757d; /* Warna abu-abu */
@@ -21,4 +22,11 @@
         .whatsapp-icon:hover {
             color: #495057; /* Warna abu-abu lebih gelap saat hover */
         }
+
+        .modal-custom {
+            max-width: 90%; /* Ubah sesuai kebutuhan */
+            width: auto; /* Mengatur lebar otomatis */
+            max-height: 90vh; /* Batasi tinggi modal hingga 90% dari tinggi viewport */
+        }
+        
     </style>

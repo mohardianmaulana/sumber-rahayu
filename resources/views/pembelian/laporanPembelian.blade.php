@@ -42,8 +42,8 @@
                                             <th>No</th>
                                             <th>Nama Barang</th>
                                             <th>Supplier</th>
-                                            <th>Total Item</th>
                                             <th>Harga</th>
+                                            <th>Total Item</th>
                                             <th>Total Harga</th>
                                             <th>Tanggal Transaksi</th>
                                         </tr>
@@ -54,10 +54,10 @@
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>{{ $item->barang_nama }}</td>
                                                 <td>{{ $item->nama_supplier }}</td>
+                                                <td>Rp. {{ number_format($item->harga, 0, ',', '.') }}</td>
                                                 <td>{{ $item->total_item }}</td>
-                                                <td>{{ $item->harga }}</td>
-                                                <td>{{ $item->total_harga }}</td>
-                                                <td>{{ $item->tanggal_transaksi }}</td>
+                                                <td>Rp. {{ number_format($item->total_harga, 0, ',', '.') }}</td>
+                                                <td>{{ \Carbon\Carbon::parse($item->tanggal_transaksi)->format('d-m-Y') }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>

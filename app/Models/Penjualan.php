@@ -71,8 +71,8 @@ class Penjualan extends Model
 
     public static function tambah($customer_id)
     {
-        // Ambil semua barang
-        $barang = Barang::all();
+        // Ambil semua barang yang tidak memiliki QR code
+        $barang = Barang::whereNull('id_qr')->get();
 
         // Ambil rata-rata harga beli untuk barang yang tidak memiliki tanggal_selesai
         $avgHargaBeli = DB::table('harga_barang')
@@ -93,7 +93,6 @@ class Penjualan extends Model
         // Kembalikan data yang dibutuhkan sebagai array
         return [
             'barang' => $barang,
-            'rataRataHargaBeli' => $rataRataHargaBeli,
             'customer' => $customer,
         ];
     }

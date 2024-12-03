@@ -29,8 +29,7 @@
 
     <!-- Nav Item - Pages Collapse Menu -->
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-            aria-expanded="true" aria-controls="collapseTwo">
+        <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapsePages">
             <i class="fas fa-chart-pie"></i>
             <span>Barang</span>
         </a>
@@ -45,8 +44,7 @@
     </li>
 
         <li class="nav-item">
-            <a class="nav-link" href="#" data-toggle="collapse" data-target="#kategori" aria-expanded="true"
-            aria-controls="collapsePages">
+            <a class="nav-link" href="#" data-toggle="collapse" data-target="#kategori" aria-expanded="true" aria-controls="collapsePages">
             <i class="fas fa-th-large"></i>
                 <span>Kategori</span>
             </a>
@@ -156,6 +154,13 @@
         </a>
     </li>
     @endif
+    <!-- Nav Item - Dashboard -->
+    <li class="nav-item">
+        <a class="nav-link" href="/register">
+            <i class="fas fa-users"></i>
+            <span>Register</span>
+        </a>
+    </li>
 
     <!-- Divider -->
     <hr class="sidebar-divider d-none d-md-block">

@@ -12,7 +12,8 @@ use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\PembelianBarangBaruController;
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\PersetujuanController;
-use App\Http\Middleware\MencegahEditPembelianLama;
+use App\Http\Controllers\UserController;
+
 
 Route::middleware(['guest'])->group(function(){
 Route::get('/', [LoginController::class, 'login'])->name('login');
@@ -23,6 +24,13 @@ Route::post('actionlogout', [LoginController::class, 'actionlogout'])->name('act
 
 Route::middleware('auth', 'verified')->group(function () {
     
+    Route::get('/register', [UserController::class, 'index'])->name('register');
+    Route::get('/user/create', [UserController::class, 'create'])->name('user.create')->middleware('can:view');
+    Route::post('/user', [UserController::class, 'store']) ->name("user.store")->middleware('can:view');
+    Route::get('/user/{user}/edit', [UserController::class, 'edit']) ->name("user.edit")->middleware('can:crud');
+    Route::post('/user/{User}', [UserController::class, 'update']) ->name("user.update")->middleware('can:crud');
+    Route::delete('/user/{User}', [UserController::class, 'destroy']) ->name("user.destroy")->middleware('can:crud');
+
     //***************************************************/ BARANG /*****************************************//
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('can:view');
     Route::get('/kode', [DashboardController::class, 'kode'])->name('kode')->middleware('can:view');
@@ -91,6 +99,10 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::get('/penjualan', [PenjualanController::class, 'index'])->name('penjualan')->middleware('can:view');
     Route::get('/penjualan/lama', [PenjualanController::class, 'oldPurchases'])->name('penjualan.lama')->middleware('can:view');
     Route::get('/penjualan/create', [PenjualanController::class, 'create'])->name('create')->middleware('can:crud');
+    Route::get('/scan_qr', [PenjualanController::class, 'scanPage'])->name('scan_qr');
+    Route::post('/cek_qr', [PenjualanController::class, 'cekQR'])->name('cek_qr');
+    Route::post('/penjualan/tambah-sesi', [PenjualanController::class, 'tambahSesi'])->name('penjualan.tambahSesi');
+    Route::post('/penjualan/hapus-sesi', [PenjualanController::class, 'hapusSesi'])->name('penjualan.hapusSesi');
     Route::post('/penjualan', [PenjualanController::class, 'store'])->name('store')->middleware('can:crud');
     Route::get('/penjualan/{Penjualan}/edit', [PenjualanController::class, 'edit'])->name('edit')->middleware('can:crud');
     Route::put('/penjualan/{Penjualan}', [PenjualanController::class, 'update'])->name('update')->middleware('can:crud');

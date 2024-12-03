@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Session;
@@ -36,4 +37,17 @@ class LoginController extends Controller
         Auth::logout();
         return redirect('/');
     }
+
+    public function register()
+    {
+        // Lakukan join antara tabel 'user' dan 'roles' untuk mendapatkan nama role
+        $users = User::join('roles', 'user.roles_id', '=', 'roles.id')
+            ->select('user.*', 'roles.name as roles_name')
+            ->get();
+
+        // Tampilkan view dengan data users
+        return view('user.register', compact('users'));
+    }
+
+    
 }
