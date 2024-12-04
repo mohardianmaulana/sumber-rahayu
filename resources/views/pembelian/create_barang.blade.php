@@ -30,7 +30,7 @@
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">Tambah Pembelian Barang Baru</h1>
                     </div>
-                    <form action="{{ url('/pembelianBarang') }}" method="post">
+                    <form action="{{ url('/pembelianBarang') }}" method="post" enctype="multipart/form-data">
                         @csrf
                         <div class="my-3 p-3 bg-body rounded shadow-sm">
                             <div class="d-flex justify-content-between align-items-center mb-3">

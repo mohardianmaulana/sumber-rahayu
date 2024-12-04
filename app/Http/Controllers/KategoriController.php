@@ -18,6 +18,13 @@ class KategoriController extends Controller
         
         return view('kategori.index', compact('kategori'));
     }
+    public function inde(Request $request)
+    {
+        // Mengambil data kategori yang statusnya 1
+        $kategori = Kategori::where('status', 1)->get();
+        
+        return view('kategori.index', compact('kategori'));
+    }
 
     public function arsip(Request $request)
     {
@@ -68,25 +75,24 @@ class KategoriController extends Controller
     $namaFile = $nm->getClientOriginalName();
     // $namaFile = time().rand(100,999).".".$nm->getClientOriginalExtension();
 
-    $dtUpload = new Kategori();
-    $dtUpload->nama_kategori = $request->nama_kategori;
-    $dtUpload->gambar_kategori = $namaFile;
-    // $dtUpload->status = 1;
+    // $dtUpload = new Kategori();
+    // $dtUpload->nama_kategori = $request->nama_kategori;
+    // $dtUpload->gambar_kategori = $namaFile;
+    // // $dtUpload->status = 1;
 
     $nm->move(public_path().'/img', $namaFile);
 
-    $dtUpload->save();
+    // $dtUpload->save();
 
 
     // dd($gambar_kategori);
 
     // Simpan data kategori ke database
-    // Kategori::create([
-    //     $dtUpload->save()
-    //     // 'nama_kategori' => $request->nama_kategori,
-    //     // 'gambar_kategori' => $gambar_kategori,
-    //     // 'status' => 1,
-    // ]);
+    Kategori::create([
+        'nama_kategori' => $request->nama_kategori,
+        'gambar_kategori' => $namaFile,
+        'status' => 1,
+    ]);
 
     return redirect()->route('kategori')->with('success', 'Kategori berhasil ditambahkan');
 }

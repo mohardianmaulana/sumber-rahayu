@@ -74,7 +74,7 @@ class PembelianBarangBaruController extends Controller
         ],
         'kategori_id' => 'required',
         'supplier_id' => 'required',
-        'gambar' => 'image|file|mimes:jpeg,jpg,png|max:2048',
+        'gambar' => 'nullable|image|file|mimes:jpg|max:2048',
     ], [
         'nama.required' => 'Nama Barang wajib diisi',
         'jumlah.required' => 'Jumlah wajib diisi',
@@ -101,20 +101,9 @@ class PembelianBarangBaruController extends Controller
     $namaFile = $nm->getClientOriginalName();
     // $namaFile = time().rand(100,999).".".$nm->getClientOriginalExtension();
 
-    $dtUpload = new Barang();
-    // $dtUpload->id_qr = $request->id_qr;
-    // $dtUpload->nama = $request->nama;
-    // $dtUpload->jumlah = $request->jumlah;
-    // $dtUpload->harga_jual = $request->harga_jual;
-    // $dtUpload->harga_beli = $request->harga_beli;
-    // $dtUpload->minLimit = $request->minLimit;
-    // $dtUpload->maxLimit = $request->maxLimit;
-    // $dtUpload->kategori_id = $request->kategori_id;
-    $dtUpload->gambar = $namaFile;
+    $nm->move(public_path().'/img', $namaFile);
 
-    $nm->move(public_path().'/images', $namaFile);
-
-    // $dtUpload->save();
+    // $barang->save();
 
     // Simpan ke tabel barang
     $barang = Barang::create([

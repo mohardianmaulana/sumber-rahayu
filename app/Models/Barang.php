@@ -12,7 +12,7 @@ class Barang extends Model
     use HasFactory;
 
     protected $table = 'barang';
-    protected $fillable = ['id_qr', 'kategori_id', 'nama', 'harga_jual', 'harga_beli', 'jumlah', 'minLimit', 'maxLimit', 'status'];
+    protected $fillable = ['id_qr', 'kategori_id', 'nama', 'harga_jual', 'harga_beli', 'jumlah', 'minLimit', 'maxLimit', 'status', 'gambar'];
 
     // Relasi dengan Kategori
     public function kategori()
@@ -61,7 +61,8 @@ class Barang extends Model
                 'harga_barang.harga_jual', 
                 'barang.jumlah', 
                 'barang.minLimit', 
-                'barang.maxLimit'
+                'barang.maxLimit',
+                'barang.gambar',
             )
             ->groupBy(
                 'barang.id', 
@@ -71,7 +72,8 @@ class Barang extends Model
                 'harga_barang.harga_jual', 
                 'barang.jumlah', 
                 'barang.minLimit', 
-                'barang.maxLimit'
+                'barang.maxLimit',
+                'barang.gambar',
             )
             ->get();
     }
