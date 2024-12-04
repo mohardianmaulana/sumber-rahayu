@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+// use Illuminate\Contracts\Session\Session as Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Session as FacadesSession;
 use Session;
 
 class LoginController extends Controller
@@ -43,7 +45,7 @@ class LoginController extends Controller
             Session::flash('error', 'Email atau Password Salah');
             return redirect('/');
         }
-    }
+        }
     }
 
     public function actionlogout()
