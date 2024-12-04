@@ -58,6 +58,7 @@
                                     <th class="col-md-1 text-center">Harga Beli</th>
                                     <th class="col-md-1 text-center">Harga Jual</th>
                                     <th class="col-md-1 text-center">Jumlah</th>
+                                    <th class="col-md-1 text-center">Gambar</th>
                                     @if (Auth::check() && Auth::user()->hasRole('admin'))
                                     <th class="col-md-1 text-center">Aksi</th>
                                     @endif
@@ -77,7 +78,9 @@
                                         @endif</td>
                                         <td class="col-md-1 text-center">Rp. {{ number_format($item->harga_jual, 0, ',', '.') }}</td>
                                         <td class="col-md-1 text-center">{{ $item->jumlah }}</td>
-                                        <td><img src="{{ asset('img/' . $item->gambar) }}" alt="Gambar" style="max-width: 200px; max-height: 200px;"></td>
+                                        <td class="col-md-1 text-center">
+                                            <img src="{{ asset('img/' . $item->gambar) }}" alt="Gambar" style="max-width: 200px; max-height: 200px;">
+                                        </td>
                                         @if (Auth::check() && Auth::user()->hasRole('admin'))
                                         <td>
                                             <div class="text-center d-flex align-items-end">
