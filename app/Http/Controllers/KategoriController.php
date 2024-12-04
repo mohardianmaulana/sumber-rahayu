@@ -48,27 +48,49 @@ class KategoriController extends Controller
         return view('kategori.create',compact('kategori'));
     }
 
-    public function store(Request $request) 
-    {
-        $validator = Validator::make($request->all(), [
-            'nama_kategori' => 'required',
-        ], [
-            'nama_kategori.required'=>'Nama Barang wajib diisi',
-        ]);
+    public function store(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'nama_kategori' => 'required',
+        'gambar_kategori' => 'image|file|mimes:jpg|max:2048', // Validasi gambar
+    ], [
+        'nama_kategori.required' => 'Nama Kategori wajib diisi',
+        'gambar_kategori.required' => 'Gambar Kategori wajib diisi',
+    ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()
-                             ->withErrors($validator)
-                             ->withInput();
-        }
-        
-        $kategori = [
-            'nama_kategori'=>$request->nama_kategori,
-            'status'=> 1,
-        ];
-        Kategori::create($kategori);
-       return redirect()->to('kategori')->with('success', 'Kategori berhasil ditambahkan');
+    if ($validator->fails()) {
+        return redirect()->back()
+            ->withErrors($validator)
+            ->withInput();
     }
+
+    $nm = $request->gambar_kategori;
+    $namaFile = $nm->getClientOriginalName();
+    // $namaFile = time().rand(100,999).".".$nm->getClientOriginalExtension();
+
+    $dtUpload = new Kategori();
+    $dtUpload->nama_kategori = $request->nama_kategori;
+    $dtUpload->gambar_kategori = $namaFile;
+    // $dtUpload->status = 1;
+
+    $nm->move(public_path().'/img', $namaFile);
+
+    $dtUpload->save();
+
+
+    // dd($gambar_kategori);
+
+    // Simpan data kategori ke database
+    // Kategori::create([
+    //     $dtUpload->save()
+    //     // 'nama_kategori' => $request->nama_kategori,
+    //     // 'gambar_kategori' => $gambar_kategori,
+    //     // 'status' => 1,
+    // ]);
+
+    return redirect()->route('kategori')->with('success', 'Kategori berhasil ditambahkan');
+}
+
 
     public function edit($id) 
     {

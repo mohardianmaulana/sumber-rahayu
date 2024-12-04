@@ -62,6 +62,7 @@
                                 <tr class="text-center">
                                     <th class="col-md-1 text-center">No</th>
                                     <th class="col-md-2 text-center">Nama Kategori</th>
+                                    <th class="col-md-2 text-center">Gambar Kategori</th>
                                     @if (Auth::check() && Auth::user()->hasRole('admin'))
                                     <th class="col-md-2 text-center">Aksi</th>
                                     @endif
@@ -72,6 +73,9 @@
                                 <tr class="text-center">
                                     <td class="col-md-1 text-center">{{ $loop->iteration }}</td>
                                     <td class="col-md-2 text-center">{{ $item->nama_kategori }}</td>
+                                    <td class="col-md-2 text-center">
+                                        <img src="{{ asset('img/' . $item->gambar_kategori) }}" alt="Gambar" style="max-width: 200px; max-height: 200px;">
+                                    </td>
                                     @if (Auth::check() && Auth::user()->hasRole('admin'))
                                     <td class="col-md-2 text-center">
                                         <div class="text-center">

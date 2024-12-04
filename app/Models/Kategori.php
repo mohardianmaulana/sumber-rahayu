@@ -11,7 +11,7 @@ class Kategori extends Model
 {
     use HasFactory;
     protected $table = 'kategori';
-    protected $fillable = ['nama_kategori', 'status'];
+    protected $fillable = ['nama_kategori', 'gambar_kategori'];
     protected $primaryKey = 'id'; // Jika primary key tidak bernama 'id', sesuaikan dengan nama yang benar
 
     public static function pulihkan($id)
@@ -38,8 +38,10 @@ class Kategori extends Model
     {
         $validator = Validator::make($request->all(), [
             'nama_kategori' => 'required',
+            'gambar_kategori' => 'required',
         ], [
             'nama_kategori.required'=>'Nama Barang wajib diisi',
+            'gambar_kategori.required'=>'Gambar Kategori wajib diisi'
         ]);
 
         if ($validator->fails()) {
@@ -50,6 +52,7 @@ class Kategori extends Model
         
         $kategori = Kategori::create ([
             'nama_kategori'=>$request->nama_kategori,
+            'gambar_kategori'=>$request->gambar_kategori,
             'status'=> 1,
         ]);
         return $kategori;

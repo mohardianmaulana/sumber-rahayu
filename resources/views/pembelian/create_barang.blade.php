@@ -161,7 +161,16 @@
                                         </div>
                                     @endif
                                 </div>
-                            </div>        
+                            </div>
+                            <div class="mb-3 row">
+                                <label for="gambar" class="col-sm-2 col-form-label">Gambar</label>
+                                <div class="col-sm-10">
+                                    <input type="file" name="gambar" id="gambar">
+                                    @error('gambar')
+                                        <div style="color:#dc4c64; margin-top:0.25rem;">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>  
                             <div class="mb-3 row">
                                 <label for="jurusan" class="col-sm-2 col-form-label"></label>
                                 <div class="col-sm-10 mb-2">

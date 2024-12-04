@@ -30,7 +30,7 @@
                 <div class="container-fluid">
                     <h2 class="h3 mb-4 text-gray-800">Tambah Kategori</h2>
                     <div class="my-3 p-3 bg-body shadow-sm" style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); border-radius:15px;">
-                        @if ($errors->any())
+                        {{-- @if ($errors->any())
                             <div class="alert alert-danger">
                                 <ul>
                                     @foreach ($errors->all() as $error)
@@ -38,13 +38,13 @@
                                     @endforeach
                                 </ul>
                             </div>
-                        @endif
+                        @endif --}}
                         @if (session('success'))
                             <div class="alert alert-success">
                                 {{ session('success') }}
                             </div>
                         @endif
-                        <form action='{{ url('kategori') }}' method='post'>
+                        <form action='{{ url('kategori') }}' method='post' enctype="multipart/form-data">
                             @csrf
                                 <a href='{{ url('kategori') }}' class="btn btn-secondary btn-sm"> < Kembali</a>
                                 {{-- <div class="mb-3 row">
@@ -75,6 +75,15 @@
                                             {{ $errors->first('nama_kategori') }}
                                             </div>
                                         @endif
+                                    </div>
+                                </div>
+                                <div class="mb-3 row">
+                                    <label for="gambar_kategori" class="col-sm-2 col-form-label">Gambar Kategori</label>
+                                    <div class="col-sm-10">
+                                        <input type="file" name="gambar_kategori" id="gambar_kategori" required>
+                                        @error('gambar_kategori')
+                                            <div style="color:#dc4c64; margin-top:0.25rem;">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                                 <div class="mb-3 row">
