@@ -50,7 +50,7 @@
                             </div>
                         @endif
 
-                    <form action='{{ url('barang/'.$barang->id) }}' method='post'>
+                    <form action='{{ url('barang/'.$barang->id) }}' method='post' enctype="multipart/form-data">
                         @csrf
                         <div class="my-3 p-3 bg-body rounded shadow-sm">
                             <div class="pb-3"> <a href='{{ url('barang') }}' class="btn btn-secondary btn-sm"> < Kembali</a></div>
@@ -128,6 +128,21 @@
                                         {{ $errors->first('kategori_id') }}
                                         </div>
                                     @endif
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label for="gambar" class="col-sm-2 col-form-label">Gambar Baru</label>
+                                <div class="col-sm-10">
+                                    <input type="file" name="gambar" id="gambar">
+                                    @error('gambar')
+                                        <div style="color:#dc4c64; margin-top:0.25rem;">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label for="gambar" class="col-sm-2 col-form-label">Gambar Lama</label>
+                                <div class="col-sm-10">
+                                    <img src="{{ asset('img/' . $barang->gambar) }}" alt="Gambar" style="max-width: 200px; max-height: 200px;">
                                 </div>
                             </div>
                             <div class="mb-3 row">

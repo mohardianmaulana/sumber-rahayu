@@ -52,7 +52,7 @@ class KategoriController extends Controller
 {
     $validator = Validator::make($request->all(), [
         'nama_kategori' => 'required',
-        'gambar_kategori' => 'image|file|mimes:jpg|max:2048', // Validasi gambar
+        'gambar_kategori' => 'image|file|mimes:jpg,png|min:100|max:2048', // Validasi gambar
     ], [
         'nama_kategori.required' => 'Nama Kategori wajib diisi',
         'gambar_kategori.required' => 'Gambar Kategori wajib diisi',
@@ -101,13 +101,21 @@ class KategoriController extends Controller
 {
     $request->validate([
         'nama_kategori' => 'required',
+        'gambar_kategori' => 'image|file|mimes:jpg,png|max:2048', // Validasi gambar
     ], [
         'nama_kategori.required' => 'Nama barang Barang wajib diisi',
+        'gambar_kategori.required' => 'Gambar Kategori wajib diisi',
     ]);
+
+    $nm = $request->gambar_kategori;
+    $namaFile = $nm->getClientOriginalName();
+
+    $nm->move(public_path().'/img', $namaFile);
 
     // Siapkan data kategori yang ingin diupdate
     $data = [
         'nama_kategori' => $request->nama_kategori,
+        'gambar_kategori' => $namaFile,
     ];
 
     // Panggil method `updateKategori` dari model Kategori

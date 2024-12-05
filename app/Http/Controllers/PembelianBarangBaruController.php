@@ -74,7 +74,7 @@ class PembelianBarangBaruController extends Controller
         ],
         'kategori_id' => 'required',
         'supplier_id' => 'required',
-        'gambar' => 'nullable|image|file|mimes:jpg|max:2048',
+        'gambar' => 'nullable|image|file|mimes:jpg,png|min:100|max:2048',
     ], [
         'nama.required' => 'Nama Barang wajib diisi',
         'jumlah.required' => 'Jumlah wajib diisi',

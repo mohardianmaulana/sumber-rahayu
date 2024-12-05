@@ -83,7 +83,7 @@
                                 <thead>
                                     <tr class="text-center">
                                         <th class="col-md-1 text-center">No</th>
-                                        <th class="col-md-3 text-center">Nama</th>
+                                        <th class="col-md-3 text-center">Nama Barang</th>
                                         <th class="col-md-2 text-center">Harga</th>
                                         <th class="col-md-2 text-center">Jumlah</th>
                                         <th class="col-md-2 text-center">Aksi</th>
@@ -180,6 +180,9 @@
                 
                 // Hapus flag reloadAndCalculate setelah dipanggil
                 sessionStorage.removeItem('reloadAndCalculate');
+
+                // Buka modal QR Scan secara otomatis setelah halaman reload
+                $('#qrScanModal').modal('show');
             }
 
             // Saat memilih barang dari modal

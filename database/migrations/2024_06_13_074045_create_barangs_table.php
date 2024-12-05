@@ -23,7 +23,7 @@ return new class extends Migration
             $table-> integer('jumlah');
             $table-> integer('minLimit');
             $table-> integer('maxLimit');
-            $table-> String('gambar_barang')->nullable();
+            $table-> String('gambar')->nullable();
             $table->timestamps();
 
             $table->foreign('kategori_id')->references('id')->on('kategori')->onDelete('cascade');

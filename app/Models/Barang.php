@@ -182,6 +182,7 @@ class Barang extends Model
                 }
             ],
             'kategori_id' => 'required',
+            'gambar' => 'nullable|image|file|mimes:jpg,png|min:100|max:2048',
         ], [
             'nama.required' => 'Nama barang Barang wajib diisi',
             'minLimit.required' => 'Min Limit wajib diisi',
@@ -197,12 +198,19 @@ class Barang extends Model
             ];
         }
 
+        $nm = $request->gambar;
+        $namaFile = $nm->getClientOriginalName();
+        // $namaFile = time().rand(100,999).".".$nm->getClientOriginalExtension();
+
+        $nm->move(public_path().'/img', $namaFile);
+
         // Update data barang
         $barang = [
             'nama' => $request->nama,
             'minLimit' => $request->minLimit,
             'maxLimit' => $request->maxLimit,
             'kategori_id' => $request->kategori_id,
+            'gambar' => $namaFile,
         ];
 
         // Melakukan update pada barang berdasarkan id
