@@ -18,6 +18,13 @@ class KategoriController extends Controller
         
         return view('kategori.index', compact('kategori'));
     }
+    // public function inde(Request $request)
+    // {
+    //     // Mengambil data kategori yang statusnya 1
+    //     $kategori = Kategori::where('status', 1)->get();
+        
+    //     return view('kategori.index', compact('kategori'));
+    // }
 
     public function arsip(Request $request)
     {
