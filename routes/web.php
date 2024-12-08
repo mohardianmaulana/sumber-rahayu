@@ -18,13 +18,18 @@ use App\Http\Controllers\UserController;
 Route::middleware(['guest'])->group(function(){
 Route::get('/', [LoginController::class, 'login'])->name('login');
 });
+
 Route::post('actionlogin', [LoginController::class, 'actionlogin'])->name('actionlogin');
 
 Route::post('actionlogout', [LoginController::class, 'actionlogout'])->name('actionlogout')->middleware('auth');
 
+Route::get('/register', [UserController::class, 'index'])->name('register')->middleware('can:view');
+
+Route::get('/katalog', [BarangController::class, 'katalog'])->name('katalog')->middleware('can:view');
+
+
 Route::middleware('auth', 'verified')->group(function () {
     
-    Route::get('/register', [UserController::class, 'index'])->name('register');
     Route::get('/user/create', [UserController::class, 'create'])->name('user.create')->middleware('can:view');
     Route::post('/user', [UserController::class, 'store']) ->name("user.store")->middleware('can:view');
     Route::get('/user/{user}/edit', [UserController::class, 'edit']) ->name("user.edit")->middleware('can:crud');
@@ -118,8 +123,6 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::get('/harga', [HargaBarangController::class, 'index'])->name('harga')->middleware('can:crud');
     Route::get('/harga/{id}/edit', [HargaBarangController::class, 'edit'])->name("edit")->middleware('can:crud');
     Route::post('/harga/{id}', [HargaBarangController::class, 'update'])->name("update")->middleware('can:crud');
-
-    Route::get('/katalog', [BarangController::class, 'katalog'])->name('katalog')->middleware('can:view');
 });
 
 // Route::get('/barang', function () {
