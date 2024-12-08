@@ -14,6 +14,12 @@ class Kategori extends Model
     protected $fillable = ['nama_kategori', 'gambar_kategori'];
     protected $primaryKey = 'id'; // Jika primary key tidak bernama 'id', sesuaikan dengan nama yang benar
 
+    // Relasi Kategori ke Barang (One to Many)
+    public function barangs()
+    {
+        return $this->hasMany(Barang::class, 'kategori_id');
+    }
+
     public static function pulihkan($id)
     {
         $kategori = Kategori::find($id);

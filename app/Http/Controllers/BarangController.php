@@ -16,6 +16,13 @@ use Illuminate\Support\Facades\Auth;
 
 class BarangController extends Controller
 {
+    public function katalog()
+    {
+        // Memanggil method di model Barang untuk mendapatkan data barang
+        $barang = Barang::getAllBarangWithKategoriAndHarga();
+        return view('katalog', compact('barang'));
+    }
+
     public function index(Request $request)
     {
         // Memanggil method di model Barang untuk mendapatkan data barang

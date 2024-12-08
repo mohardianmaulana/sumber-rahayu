@@ -118,6 +118,8 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::get('/harga', [HargaBarangController::class, 'index'])->name('harga')->middleware('can:crud');
     Route::get('/harga/{id}/edit', [HargaBarangController::class, 'edit'])->name("edit")->middleware('can:crud');
     Route::post('/harga/{id}', [HargaBarangController::class, 'update'])->name("update")->middleware('can:crud');
+
+    Route::get('/katalog', [BarangController::class, 'katalog'])->name('katalog')->middleware('can:view');
 });
 
 // Route::get('/barang', function () {

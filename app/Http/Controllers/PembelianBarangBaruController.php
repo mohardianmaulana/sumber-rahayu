@@ -97,11 +97,14 @@ class PembelianBarangBaruController extends Controller
                         ->withInput();
     }
 
+    $namaFile = null;
+    if ($request->hasFile('gambar')) {
     $nm = $request->gambar;
     $namaFile = $nm->getClientOriginalName();
     // $namaFile = time().rand(100,999).".".$nm->getClientOriginalExtension();
 
     $nm->move(public_path().'/img', $namaFile);
+    }
 
     // $barang->save();
 
