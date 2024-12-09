@@ -142,7 +142,11 @@
                             <div class="mb-3 row">
                                 <label for="gambar" class="col-sm-2 col-form-label">Gambar Lama</label>
                                 <div class="col-sm-10">
-                                    <img src="{{ asset('img/' . $barang->gambar) }}" alt="Gambar" style="max-width: 200px; max-height: 200px;">
+                                    @if($barang->gambar) 
+                                        <img src="{{ asset('img/' . $barang->gambar) }}" alt="Gambar" style="max-width: 200px; max-height: 200px;">
+                                    @else
+                                        <span>Tidak ada gambar</span>
+                                    @endif
                                 </div>
                             </div>
                             <div class="mb-3 row">

@@ -59,7 +59,7 @@ class KategoriController extends Controller
 {
     $validator = Validator::make($request->all(), [
         'nama_kategori' => 'required',
-        'gambar_kategori' => 'image|file|mimes:jpg,png|min:100|max:2048', // Validasi gambar
+        'gambar_kategori' => 'image|file|mimes:jpg,png|min:1|max:2048', // Validasi gambar
     ], [
         'nama_kategori.required' => 'Nama Kategori wajib diisi',
         'gambar_kategori.required' => 'Gambar Kategori wajib diisi',

@@ -184,7 +184,7 @@ class Barang extends Model
                 }
             ],
             'kategori_id' => 'required',
-            'gambar' => 'nullable|image|file|mimes:jpg,png|min:100|max:2048',
+            'gambar' => 'nullable|image|file|mimes:jpg,png|min:1|max:2048',
         ], [
             'nama.required' => 'Nama barang Barang wajib diisi',
             'minLimit.required' => 'Min Limit wajib diisi',

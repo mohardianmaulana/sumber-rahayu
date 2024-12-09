@@ -4,6 +4,13 @@
 <head>
     <title>Daftar Kategori</title>
     @include('template.header')
+
+    <style>
+        .table td, .table th {
+            vertical-align: middle; /* Untuk vertikal */
+            text-align: center; /* Untuk horizontal */
+        }
+    </style>
 </head>
 
 <body id="page-top">

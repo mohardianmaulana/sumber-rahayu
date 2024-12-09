@@ -11,7 +11,7 @@ class Kategori extends Model
 {
     use HasFactory;
     protected $table = 'kategori';
-    protected $fillable = ['nama_kategori', 'gambar_kategori'];
+    protected $fillable = ['nama_kategori', 'gambar_kategori', 'status'];
     protected $primaryKey = 'id'; // Jika primary key tidak bernama 'id', sesuaikan dengan nama yang benar
 
     // Relasi Kategori ke Barang (One to Many)

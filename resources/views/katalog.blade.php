@@ -74,6 +74,19 @@
 
                     <h1 class="h3 mb-4 text-gray-800">Katalog Barang</h1>
 
+                    <!-- Dropdown untuk memilih kategori -->
+                    <form id="kategoriForm" action="{{ route('katalog') }}" method="GET">
+                        <div class="mb-4">
+                            <label for="kategori" class="form-label">Pilih Kategori</label>
+                            <select class="form-select" id="kategori" name="kategori_id" onchange="this.form.submit()">
+                                <option value="">Semua Kategori</option>
+                                @foreach($kategori as $kategori)
+                                    <option value="{{ $kategori->id }}" {{ request('kategori_id') == $kategori->id ? 'selected' : '' }}>{{ $kategori->nama_kategori }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </form>
+
                     <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
                         @foreach ($barang as $item)
     <div class="col">
@@ -121,6 +134,12 @@
     @include('template.modal_logout')
 
     @include('template.script')
+
+    <script>
+        $(document).ready(function() {
+            
+        });
+    </script>
 
     <!-- Add Bootstrap JS (if not included already) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
