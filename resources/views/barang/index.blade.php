@@ -4,6 +4,15 @@
 <head>
     <title>Daftar Barang</title>
     @include('template.header')
+
+    <style>
+        <style>
+        .table td, .table th {
+            vertical-align: middle; /* Untuk vertikal */
+            text-align: center; /* Untuk horizontal */
+        }
+    </style>
+    </style>
 </head>
 
 <body id="page-top">

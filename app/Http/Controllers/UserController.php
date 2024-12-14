@@ -17,7 +17,8 @@ class UserController extends Controller
     public function index()
     {
         // Lakukan join antara tabel 'user' dan 'roles' untuk mendapatkan nama role
-        $users = User::join('roles', 'user.roles_id', '=', 'roles.id')
+        $users = User::
+            join('roles', 'user.roles_id', '=', 'roles.id')
             ->select('user.*', 'roles.name as roles_name')
             ->get();
 
@@ -32,7 +33,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('user.create');
+        $role = Role::all();
+        return view('user.create', compact('role'));
     }
 
     /**
@@ -49,16 +51,18 @@ class UserController extends Controller
             'password' => 'required|string|min:8',
         ]);
 
+        $nm = $request->roles_id;
+        $namaFile = $nm;
         // Buat user dan tetapkan roles_id
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'roles_id' => 2, // Misal ini untuk role owner
+            'roles_id' => $namaFile, // Misal ini untuk role owner
         ]);
 
         // Ambil role dan permission
-        $role = Role::find(2); // Ganti 2 dengan ID role yang sesuai jika perlu
+        $role = Role::find($namaFile); // Ganti 2 dengan ID role yang sesuai jika perlu
         if ($role) {
             // Assign permission ke user berdasarkan role
             $permissions = $role->permissions; // Mendapatkan semua permissions untuk role ini

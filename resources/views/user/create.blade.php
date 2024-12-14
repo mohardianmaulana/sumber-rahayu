@@ -74,12 +74,37 @@
                                 </div>
                             </div>
                             <div class="mb-3 row">
-                                <label for="alamat" class="col-sm-2 col-form-label">Password</label>
+                                <label for="password" class="col-sm-2 col-form-label">Password</label>
                                 <div class="col-sm-10">
-                                    <input type="text" class="form-control" name='password' value="{{ old('password') }}" id="password">
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" name="password" value="{{ old('password') }}" id="password">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                                                <i class="fas fa-eye" id="eyeIcon"></i>
+                                            </button>
+                                        </div>
+                                    </div>
                                     @if (count($errors) > 0)
                                         <div style="width:auto; color:#dc4c64; margin-top:0.25rem;">
-                                        {{ $errors->first('password') }}
+                                            {{ $errors->first('password') }}
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label for="roles" class="col-sm-2 col-form-label">Role</label>
+                                <div class="col-sm-10">
+                                    <select name="roles_id" class="form-control">
+                                        <option value="" class="text-center">--- Pilih ---</option>
+                                        @foreach ($role as $item)
+                                            <option value="{{ $item->id }}" class="text-center" {{ old('roles_id') == $item->id ? 'selected' : '' }}>
+                                                {{ $item->name }}
+                                            </option>                    
+                                        @endforeach
+                                    </select>
+                                    @if (count($errors) > 0)
+                                        <div style="width:auto; color:#dc4c64; margin-top:0.25rem;">
+                                            {{ $errors->first('roles_id') }}
                                         </div>
                                     @endif
                                 </div>
@@ -116,6 +141,25 @@
     @include('template.modal_logout')
 
     @include('template.script')
+
+    <script>
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const passwordField = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+    
+            // Toggle the type attribute
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        });
+    </script>
+    
 
 </body>
 
